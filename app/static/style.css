@@ -1,0 +1,203 @@
+body{
+/*    background: white url(images/background.jpg);*/
+    background: #1f1f1f;
+}
+/*para el ancho de botones */
+.largo {
+    width: 125px !important;
+}
+.alto {
+    height: 40px !important;
+}
+canvas {
+   background-color: rgba(255, 255, 255, 0);
+   max-width: 580px;
+}
+
+#page-container {
+  position: relative;
+  min-height: 100vh;
+}
+
+#content-wrap {
+  padding-bottom: 5rem;    /* Footer height */
+}
+
+#footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 2.5rem;            /* Footer height */
+}
+
+#extraspace {
+    height: 3.5rem;
+}
+
+
+
+
+/*para el navbar */
+.navbar{
+    border-radius: 0;
+    align-content: center;
+
+}
+.navbar-brand{
+    font-family: 'Satisfy',cursive;
+    color: #00CED1;
+
+}
+#cover {
+    background: #222 center center no-repeat;
+    background-size: cover;
+    height: 100%;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+/*para centrar los formulario */
+#cover-caption {
+    width: 100%;
+    position: relative;
+    z-index: 1;
+}
+
+/* only used for background overlay not needed for centering */
+form:before {
+    content: '';
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    background-color: rgba(0,0,0,0.3);
+    z-index: -1;
+    border-radius: 10px;
+}
+/*para el sroll de las tablas */
+.my-custom-scrollbar {
+position: relative;
+height: 900px;
+overflow: auto;
+
+}
+.table-wrapper-scroll-y {
+display: block;
+}
+.my-custom-scrollbar2 {
+position: relative;
+height: 600px;
+overflow: auto;
+}
+.my-custom-scrollbar3 {
+position: relative;
+height: 600px;
+overflow: auto;
+overflow-x: hidden;
+}
+.my-custom-scrollbarIn {
+position: relative;
+height: 238px;
+max-height: 238px;
+overflow: auto;
+}
+.my-custom-scrollbarIn4 {
+position: relative;
+height: 268px;
+max-height: 268px;
+overflow: auto;
+}
+.my-custom-scrollbarIn2 {
+position: relative;
+max-height: 417px;
+height: 417px;
+overflow: auto;
+}
+.my-custom-scrollbarIn3 {
+position: relative;
+max-height: 477px;
+height: 477px;
+overflow: auto;
+}
+.my-custom-scrollbarWW {
+position: relative;
+height: 782px;
+overflow: auto;
+}
+.my-custom-scrollbarWW2 {
+position: relative;
+height: 813px;
+overflow: auto;
+}
+.my-custom-scrollbar5 {
+position: relative;
+height: 450px;
+overflow: auto;
+}
+/*snipet para los articulos */
+h1, h2, h3, h4, h5, h6 {
+  color: #ffffff;
+}
+/*snipet para los articulos */
+
+
+ul {
+  margin: 0;
+}
+
+
+
+.content-section {
+  background: #282828;
+  padding: 10px 20px;
+  border: 1px solid #00CED1;
+  border-radius: 3px;
+  margin-bottom: 20px;
+  height: 80px;
+}
+
+.article-title {
+  color: #ffffff;
+}
+.mycontent-left {
+  border-right: 1px dashed #333;
+}
+a.article-title:hover {
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.article-content {
+  white-space: pre-line;
+}
+
+.article-img {
+  height: 65px;
+  width: 65px;
+  margin-right: 16px;
+}
+
+.article-metadata {
+  padding-bottom: 1px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid #00CED1;
+}
+
+.article-metadata a:hover {
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.article-svg {
+  width: 25px;
+  height: 25px;
+  vertical-align: middle;
+}
+
+
+/*listados */
+
+/* Style the header */

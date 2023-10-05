@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block title %}Analisis{% endblock %}
+{% block content %}
+    <br>
+    <div class="row mx-auto justify-content-center mb-12">
+      <div class="float-left btn-group flex-wrap col-xl-6 col-lg-7 col-md-9 col-sm-12 col-12 h-50">
+           <a {% if year == '2022' %} class="btn btn-info active" {% else %}class="btn btn-info" href="{% url 'app:analisis_anual' '2022' %}"{% endif %}>2022</a>
+           <a {% if year == '2023' %} class="btn btn-info active" {% else %}class="btn btn-info" href="{% url 'app:analisis_anual' '2023'  %}"{% endif %}>2023</a>
+      </div>
+    </div><br>
+    <br>
+    <br>
+    <div class="row mx-auto justify-content-center mb-12">
+        <div class="float-left btn-group flex-wrap col-xl-6 col-lg-7 col-md-9 col-sm-12 col-12 h-50">
+        {% for month_number, month_name in month_choices %}
+            {% if symbol %}
+                <a class="btn btn-info{% if month == month_number %} active{% endif %}" href="{% url 'app:analisis_symbol_mensual' year month_number symbol %}">{{ month_name }}</a>
+            {% else  %}
+                <a class="btn btn-info{% if month == month_number %} active{% endif %}" href="{% url 'app:analisis_mensual' year month_number %}">{{ month_name }}</a>
+            {% endif %}
+        {% endfor %}
+        </div>
+    </div><br>
+    <br>
+   <div class="row text-white">
+          <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 mx-auto text-center form p-2">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="table-wrapper-scroll-y my-custom-scrollbar">
+                            <table class="table table-striped table-light table-hover table-bordered mb-0" style="line-height: 0.6">
+                                <thead class="thead-dark sticky-top">
+                                    <tr>
+                                        <th><a class="text-truncate text-light" >Coin</a></th>
+                                        <th><a class="text-truncate text-light" >Type</a></th>
+                                        <th><a class="text-truncate text-light" >Simulation</a></th>
+                                        <th><a class="text-truncate text-light" >ratio</a></th>
+                                        <th><a class="text-truncate text-light" >sl limit</a></th>
+                                        <th><a class="text-truncate text-light" >sl low limit</a></th>
+                                        <th><a class="text-truncate text-light" >rsi op</a></th>
+                                        <th><a class="text-truncate text-light" >stochastic</a></th>
+                                        <th><a class="text-truncate text-light" >PnL</a></th>
+                                        <th><a class="text-truncate text-light" >Duration</a></th>
+                                        <th><a class="text-truncate text-light" >Positions</a></th>
+                                        <th><a class="text-truncate text-light" >TP</a></th>
+                                        <th><a class="text-truncate text-light" >SL</a></th>
+{#                                        <th><a class="text-truncate text-light" >TPrsi</a></th>#}
+{#                                        <th><a class="text-truncate text-light" >SLrsi</a></th>#}
+                                        <th><a class="text-truncate text-light" >Av PnL</a></th>
+                                        <th><a class="text-truncate text-light" >Fee Total</a></th>
+                                        <th><a class="text-truncate text-light" >Max PnL</a></th>
+                                        <th><a class="text-truncate text-light" >Min PnL</a></th>
+                                        <th><a class="text-truncate text-light" >Avg TP</a></th>
+                                        <th><a class="text-truncate text-light" >Avg SL</a></th>
+                                    </tr>
+                                </thead>
+
+                                <tbody id="myTable">
+                                    {% for r in lista %}
+                                        <tr>
+                                            <td><a href="{% url 'app:analisis_symbol' year r.symbol__symbol %}" class="text-truncate text-dark align-middle" >{{ r.symbol__symbol }}</a></td>
+                                            <td><a class="text-truncate text-dark align-middle" >{{ r.type }}</a></td>
+                                            <td><a class="text-truncate text-dark align-middle" >{{ r.simulation }}</a></td>
+                                            <td><a class="text-truncate text-dark align-middle" >{{ r.tp_sl_ratio }}</a></td>
+                                            <td><a class="text-truncate text-dark align-middle" >{{ r.sl_limit }}</a></td>
+                                            <td><a class="text-truncate text-dark align-middle" >{{ r.sl_low_limit }}</a></td>
+                                            <td><a class="text-truncate text-dark align-middle" >{{ r.rsi_open }}</a></td>
+                                            <td><a class="text-truncate text-dark align-middle" >{{ r.stoch_open }}</a></td>
+                                            <td><a class="text-truncate text-dark align-middle" >{{ r.pnl_total|floatformat:2 }}</a></td>
+                                            <td><a class="text-truncate text-dark align-middle" >{{ r.avg_duration }}</a></td>
+                                            <td><a class="text-truncate text-dark align-middle" >{{ r.positions }}</a></td>
+                                            <td><a class="text-truncate text-dark align-middle" >{{ r.TP }}</a></td>
+                                            <td><a class="text-truncate text-dark align-middle" >{{ r.SL }}</a></td>
+{#                                            <td><a class="text-truncate text-dark align-middle" >{{ r.TPrsi }}</a></td>#}
+{#                                            <td><a class="text-truncate text-dark align-middle" >{{ r.SLrsi }}</a></td>#}
+                                            <td><a class="text-truncate text-dark align-middle" >{{ r.pnl_average|floatformat:3 }}</a></td>
+                                            <td><a class="text-truncate text-dark align-middle" >{{ r.total_fee|floatformat:2 }}</a></td>
+                                            <td><a class="text-truncate text-dark align-middle" >{{ r.max_pnl|floatformat:2 }}</a></td>
+                                            <td><a class="text-truncate text-dark align-middle" >{{ r.min_pnl|floatformat:2 }}</a></td>
+                                            <td><a class="text-truncate text-dark align-middle" >{{ r.avg_pnl_tp|floatformat:2 }}</a></td>
+                                            <td><a class="text-truncate text-dark align-middle" >{{ r.avg_pnl_sl|floatformat:2 }}</a></td>
+
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+          </div>
+   </div>
+
+{% endblock %}

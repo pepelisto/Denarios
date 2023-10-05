@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Next level Investments">
+    <meta name="keywords" content="Invesments">
+    <meta name="copyright" content="Martin Moran Goycoolea">
+    <meta name="author" content="Martin Moran Goycoolea">
+<!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-172323238-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-172323238-1');
+    </script>
+
+    <!-- Bootstrap CSS -->
+    {% load static %}
+    <link rel="shortcut icon" href="{% static ''%}" type='image/x-icon'>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}"/>
+    <script src = {% static 'js.js' %}> </script>
+    <title>{% block title %}Denarios{% endblock %}</title>
+    <link href='https://fonts.googleapis.com/css?family=Satisfy' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+
+
+    {% block head %}
+
+    {% endblock %}
+</head>
+
+{###background-color:#1f1f1f;  oscuro#}
+<body {% block bodytype %} style="background-color:#7c7c7c;"{% endblock %}>
+<div id="page-container">
+  <div class="content-wrap">
+    <header class="site-header">
+        <!-- expand md esra que se oculten los botones cuando la pantalla es medium se puede cambiar a sm lg ets-->
+        <nav class="navbar navbar-expand-xl bg-dark navbar-dark border border-top-0 border-right-0 border-left-0 border-info">
+         <!-- container fluid usa toda la pantalla  solo container queda en el medio-->
+            <div class="container-fluid">
+                <img class="navbar-brand" alt="Paralegapp logo" src="{% static 'images/logo1.png' %}" width="130px">
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                {% if user.is_authenticated %}
+                    <div class="collapse navbar-collapse" id="navbarToggle">
+                        <div class="navbar-nav mr-auto">
+                            <a class="nav-item nav-link text-light" href="">
+                                <span class="fas fa-home text-truncate" aria-hidden="true">&nbsp Inicio</span>
+                            </a>
+                            <a class="nav-item nav-link text-light" href="">
+                                <span class="fas fa-briefcase text-truncate" aria-hidden="true">&nbsp Portfolio</span>
+                            </a>
+{#                            <a class="nav-item nav-link text-light" href="">#}
+{#                                <span class="fas fa-bell text-truncate" aria-hidden="true">&nbsp Novedades </span>#}
+{#                            </a>#}
+{#                            <a class="nav-item nav-link text-light" href="{% url 'paralegapp:mis_estados' '-fecha_ingreso' 1 %}">#}
+{#                                <span class="fas fa-history text-truncate" aria-hidden="true">&nbsp Historias </span>#}
+{#                            </a>#}
+{#                            <a class="nav-item nav-link text-light" href="">#}
+{#                                <span class="fas fa-tasks text-truncate" aria-hidden="true">&nbsp Tareas </span>#}
+{#                            </a>#}
+{#                            <a class="nav-item nav-link text-light" href="">#}
+{#                                <span class="fas fa-plus text-truncate" aria-hidden="true">&nbsp Agregar Causas</span>#}
+{#                            </a>#}
+                        </div>
+                        <!-- Navbar Right Side -->
+                        <div class="navbar-nav">
+                            <!--a class="nav-item nav-link text-light" href="{ # url 'paralegapp:gestion' %}">
+                                <span class="fas fa-chart-bar text-truncate" aria-hidden="true"> &nbspGestión</span>
+                            </a-->
+                            <a class="nav-item nav-link text-light" href="">
+                                <span class="fas fa-user text-truncate" aria-hidden="true"> &nbsp{{ user.first_name }} </span>
+                            </a>
+                            <a class="nav-item nav-link text-light" href="">
+                                <span class="fas fa-question-circle text-truncate" aria-hidden="true"> &nbspAyuda</span>
+                            </a>
+                            <a class="nav-item nav-link text-light" href="">
+                                <span class="fas fa-sign-out-alt text-truncate" aria-hidden="true">&nbsp Salir</span>
+                            </a>
+                        </div>
+                    </div>
+                {% else %}
+                     <div class="collapse navbar-collapse" id="navbarToggle">
+                        <div class="navbar-nav mr-auto">
+                            <a class="nav-item nav-link" href="">
+                                <span aria-hidden="true"></span> Inicio &nbsp
+                            </a>
+                            <a class="nav-item nav-link" href="">
+                                <span aria-hidden="true"></span>Como funciona
+                            </a>
+                        </div>
+                        <!-- Navbar Right Side -->
+                        <div class="navbar-nav">
+                            <a class="nav-item nav-link" href="">
+                                <span  aria-hidden="true"></span> LogIn
+                            </a>
+                            <a class="nav-item nav-link" href="">
+                                <span aria-hidden="true"></span> Crear Cuenta
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+
+    <main role="main" class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                           {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                {% block content %}
+
+
+
+                {% endblock %}
+
+            </div>
+        </div>
+    </main>
+  <div id="extraspace">
+  </div>
+  </div>
+    <footer>
+        <div class="footer" id="footer">
+             <!-- expand md esra que se oculten los botones cuando la pantalla es medium se puede cambiar a sm lg ets-->
+            <nav class="navbar navbar-expand-sm bg-dark navbar-dark" style="height: 2.5rem">
+             <!-- container fluid usa toda la pantalla  solo container queda en el medio-->
+                 <div class="collapse navbar-collapse" id="navbarToggle">
+                    <div class="navbar-nav mr-auto">
+                        <a class="nav-item nav-link text-light">
+                            <span  aria-hidden="true"></span>
+                        </a>
+                    </div>
+                    <!-- Navbar Right Side -->
+                    <div class="navbar-nav text-white">
+                        <span class="fab fa-whatsapp text-truncate" aria-hidden="true"></span>&nbsp&nbsp
+                    </div>
+                 </div>
+            </nav>
+        </div>
+    </footer>
+</div>
+    <script src="{% static 'js.js' %}"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+</body>
+</html>
