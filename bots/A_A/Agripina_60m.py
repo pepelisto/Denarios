@@ -25,13 +25,14 @@ def update_opportunities(op, type=None, stock_rsi=None, macd=None, rsi=None):
 
 
 def create_position(symbol_, type_, entry_price_, quantity_, open_date_, stoch_, rsi_, sl_price, take_profit,
-                    leverage, stopPrice_precision, sl_order_id):
+                    leverage, stopPrice_precision, sl_order_id, position_id):
     Open_position.objects.create(
         symbol=symbol_,
         type=type_,
         entry_price=entry_price_,
         leverage=leverage,
         quantity=quantity_,
+        margin=(quantity_/leverage),
         open_date=open_date_,
         stoch=stoch_,
         rsi=rsi_,
@@ -40,6 +41,7 @@ def create_position(symbol_, type_, entry_price_, quantity_, open_date_, stoch_,
         stopPrice_precision=stopPrice_precision,
         timeframe=60,
         sl_order_id=sl_order_id,
+        position_id=position_id,
     )
 
 
@@ -72,7 +74,7 @@ def open_position(symbol, side, stop_loss_factor, take_profit_factor, usdt_size)
     stop_loss, data = place_order_with_retry(trader, symbol, side, stop_loss, 'STOP_MARKET', position_id, stopPrice_precision, stop_loss_factor)
     sl_order_id = data['orderId']
 
-    return entry_price, stop_loss, take_profit, leverage, stopPrice_precision, sl_order_id
+    return entry_price, stop_loss, take_profit, leverage, stopPrice_precision, sl_order_id, position_id
 
 def place_order_with_retry(trader, symbol, side, price, kind, position_id, stopPrice_precision, factor):
     order_placed = False
@@ -205,10 +207,10 @@ def agripina(s, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, sl_tp_ratio, sl_li
         sym = s.symbol.symbol
         profit_factor = 1 + sl_factor * (-1.05) * sl_tp_ratio
         loss_factor = 1 + sl_factor * (1.05)
-        entry_price, stop_loss, take_profit, leverage, stopPrice_precision, sl_order_id \
+        entry_price, stop_loss, take_profit, leverage, stopPrice_precision, sl_order_id, position_id \
             = open_position(sym, type_, loss_factor, profit_factor, usdt_size)
         create_position(symbol_, type_, entry_price, quantity_, open_date_, stoch_,
-                        rsi_, stop_loss, take_profit, leverage, stopPrice_precision, sl_order_id)
+                        rsi_, stop_loss, take_profit, leverage, stopPrice_precision, sl_order_id, position_id)
         update_opportunities(op, type='OPEN')
 
 def traeder():
