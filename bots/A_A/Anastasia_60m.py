@@ -201,7 +201,10 @@ def anastasia(s, df, sl_tp_ratio, sl_limit, sl_low_limit):
         po.save()
 
 def traeder():
-    symbols = Optimum_parameter.objects.filter(timeframe=60).order_by('-pnl')
+    open_positions = Open_position.objects.filter(timeframe=60).values_list('symbol_id', flat=True)
+    if not open_positions.exists():
+        return
+    symbols = Optimum_parameter.objects.filter(symbol__id__in=open_positions, timeframe=60).order_by('-pnl')
     for s in symbols:
         symbols = [s.symbol.symbol]
         interval = '1h'
@@ -218,7 +221,7 @@ def run_scheduled_pattern():
         current_time = datetime.datetime.now()
 
         # Calculate the start time for the next hour
-        next_start_time = current_time + datetime.timedelta(seconds=10)
+        next_start_time = current_time + datetime.timedelta(seconds=45)
 
         # Calculate the remaining time until the next start time
         remaining_time = (next_start_time - current_time).total_seconds()
@@ -232,5 +235,5 @@ def run_scheduled_pattern():
         traeder()
         print("Executing your task.")
 
-
+# traeder()
 run_scheduled_pattern()
