@@ -17,7 +17,7 @@ class Oportunities(models.Model):
     class Meta:
         unique_together = ['symbol', 'timeframe']
     def __str__(self):
-        return str(self.symbol) + ' - ' + self.type + ' - ' + str(self.stock_rsi) + ' - ' + str(self.macd) + ' - ' + str(self.rsi)
+        return str(self.symbol) + ' - ' + self.type + ' - ' + str(self.stock_rsi) + ' - ' + str(self.macd) + ' - ' + str(self.rsi) + ' - ' + str(self.timeframe)
 
 class Open_position(models.Model):
     symbol = models.OneToOneField(Symbol, on_delete=models.CASCADE)
