@@ -229,11 +229,11 @@ def run_scheduled_pattern():
         # If remaining time is negative, set it to 0 to avoid negative sleep time
         remaining_time = max(0, remaining_time)
 
-        print(f"Waiting for {remaining_time / 60} minutes until {next_start_time}")
+        # print(f"Waiting for {remaining_time / 60} minutes until {next_start_time}")
         time.sleep(remaining_time)
 
         traeder()
-        print("Executing your task.")
+        # print("Executing your task.")
 
 # traeder()
 run_scheduled_pattern()

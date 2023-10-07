@@ -41,7 +41,7 @@ def create_position(symbol_, type_, entry_price_, quantity_, open_date_, stoch_,
         stopPrice_precision=stopPrice_precision,
         timeframe=15,
         sl_order_id=sl_order_id,
-        position_id=position_id,
+        id_position=position_id,
     )
 
 
@@ -247,7 +247,7 @@ def run_scheduled_pattern():
         # If remaining time is negative, set it to 0 to avoid negative sleep time
         remaining_time = max(0, remaining_time)
 
-        print(f"Waiting for {remaining_time / 15} minutes until {next_start_time}")
+        print(f"Waiting for {remaining_time / 60} minutes until {next_start_time}")
         time.sleep(remaining_time)
 
         traeder()
