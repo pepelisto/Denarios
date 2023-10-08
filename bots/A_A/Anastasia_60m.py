@@ -103,7 +103,7 @@ def place_order_with_retry(trader, symbol, side, price, kind, stopPrice_precisio
 
 def anastasia(s, df, sl_tp_ratio, sl_limit, sl_low_limit):
     try:
-        po = Open_position.objects.get(symbol_id=s.pk, timeframe=60)
+        po = Open_position.objects.get(symbol_id=s.symbol.pk, timeframe=60)
     except:
         return
     type_ = po.type
