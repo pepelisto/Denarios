@@ -42,6 +42,7 @@ def create_position(symbol_, type_, entry_price_, quantity_, open_date_, stoch_,
         timeframe=60,
         sl_order_id=sl_order_id,
         id_position=position_id,
+        alt_TP_SL=0,
     )
 
 

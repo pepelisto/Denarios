@@ -113,6 +113,7 @@ def anastasia(s, df, sl_tp_ratio, sl_limit, sl_low_limit):
     close_date_ = df['timestamp'].iloc[0]
     tp_p = po.tp_price
     sl_p = po.sl_price
+    alteraciones = po.alt_TP_SL
     precision = po.stopPrice_precision
     tp_period = False
     sl_period = False
@@ -137,22 +138,11 @@ def anastasia(s, df, sl_tp_ratio, sl_limit, sl_low_limit):
             else:
                 close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='SL')
                 return
+        aumento = (high - po.entry_price)/po.entry_price
+        if aumento > (alteraciones + 1) * 0.003:
+            ajuste = True
+            stop_loss = round(sl_p + po.entry_price * 0.003, precision)
 
-        if sl_p < po.entry_price + po.entry_price * 0.00036 * 2:
-            factor = (po.tp_price - po.entry_price) / 3
-            aumento = (high - po.entry_price)
-            if aumento > factor:
-                ajuste = True
-                numero_ajuste = 1
-                stop_loss = round(po.entry_price + po.entry_price * 0.00036 * 2, precision)
-
-        elif sl_p == po.entry_price + po.entry_price * 0.00036 * 2:
-            factor = (po.tp_price - po.entry_price) / 3
-            aumento = (high - po.entry_price)
-            if aumento > factor * 2:
-                ajuste = True
-                numero_ajuste = 2
-                stop_loss = round(po.entry_price + po.entry_price * 0.00036 * 2 + factor, precision)
 
     else:
         if low <= tp_p:
@@ -174,29 +164,19 @@ def anastasia(s, df, sl_tp_ratio, sl_limit, sl_low_limit):
             else:
                 close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='SL')
                 return
+        aumento = -((low - po.entry_price)/po.entry_price)
+        if aumento > (alteraciones + 1) * 0.003:
+            ajuste = True
+            stop_loss = round(sl_p - po.entry_price * 0.003, precision)
 
-        if sl_p > po.entry_price - po.entry_price * 0.00036 * 2:
-            factor = (po.tp_price - po.entry_price) / 3
-            aumento = (low - po.entry_price)
-            if aumento < factor:
-                ajuste = True
-                numero_ajuste = 1
-                stop_loss = round(po.entry_price - po.entry_price * 0.00036 * 2, precision)
-
-        elif sl_p == po.entry_price - po.entry_price * 0.00036 * 2:
-            factor = (po.tp_price - po.entry_price) / 3
-            aumento = (low - po.entry_price)
-            if aumento < factor * 2:
-                ajuste = True
-                numero_ajuste = 2
-                stop_loss = round(po.entry_price - po.entry_price * 0.00036 * 2 + factor, precision)
 
     if ajuste:
         sl_order_id = po.sl_order_id
         side = po.type
         symbol = s.symbol.symbol
-        new_sl = adjust_sl(symbol, side, stop_loss, precision, sl_order_id)
-        po.alt_TP_SL = numero_ajuste
+        new_sl, new_order_id = adjust_sl(symbol, side, stop_loss, precision, sl_order_id)
+        po.sl_order_id = new_order_id
+        po.alt_TP_SL = alteraciones + 1
         po.sl_price = new_sl
         po.save()
 
