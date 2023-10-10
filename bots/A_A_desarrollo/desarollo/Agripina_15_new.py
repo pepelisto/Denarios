@@ -3,7 +3,7 @@ import django
 from bots.A_A.functions.CryptoAnalyzer import CryptoAnalyzer
 import time
 import datetime
-from bots.A_A.desarollo.Agripina_class import Agripina
+from bots.A_A_desarrollo.desarollo.Agripina_class import Agripina
 
 from Denarios.settings import DATABASES, INSTALLED_APPS
 settings.configure(DATABASES=DATABASES, INSTALLED_APPS=INSTALLED_APPS)

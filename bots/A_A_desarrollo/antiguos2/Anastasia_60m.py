@@ -206,7 +206,7 @@ def anastasia(s, df, sl_tp_ratio, sl_limit, sl_low_limit):
         symbol = s.symbol.symbol
         new_sl, new_order_id = adjust_sl(symbol, side, stop_loss, precision, sl_order_id)
         atl = alteraciones + 1
-        retry_on_database_error(po, new_order_id, atl, new_sl)
+        retry_on_database_error(update_position, po, new_order_id, atl, new_sl)
 
 
 def traeder():
@@ -228,23 +228,13 @@ def traeder():
 
 def run_scheduled_pattern():
     while True:
-        # Get the current time
         current_time = datetime.datetime.now()
-
-        # Calculate the start time for the next hour
         next_start_time = current_time + datetime.timedelta(seconds=45)
-
-        # Calculate the remaining time until the next start time
         remaining_time = (next_start_time - current_time).total_seconds()
-
-        # If remaining time is negative, set it to 0 to avoid negative sleep time
         remaining_time = max(0, remaining_time)
-
-        # print(f"Waiting for {remaining_time / 60} minutes until {next_start_time}")
         time.sleep(remaining_time)
-
         traeder()
-        # print("Executing your task.")
+
 
 # traeder()
 run_scheduled_pattern()

@@ -53,11 +53,12 @@ def create_position(symbol_, type_, entry_price_, quantity_, open_date_, stoch_,
         sl_price=sl_price,
         tp_price=take_profit,
         stopPrice_precision=stopPrice_precision,
-        timeframe=15,
+        timeframe=60,
         sl_order_id=sl_order_id,
         id_position=position_id,
         alt_TP_SL=0,
     )
+
 
 def open_position(symbol, side, stop_loss_factor, take_profit_factor, usdt_size):
 
@@ -90,6 +91,7 @@ def open_position(symbol, side, stop_loss_factor, take_profit_factor, usdt_size)
 
     return entry_price, stop_loss, take_profit, leverage, stopPrice_precision, sl_order_id, position_id
 
+
 def place_order_with_retry(trader, symbol, side, price, kind, position_id, stopPrice_precision, factor):
     order_placed = False
     order = None
@@ -114,6 +116,7 @@ def place_order_with_retry(trader, symbol, side, price, kind, position_id, stopP
                 # Other error occurred, raise the exception
                 raise
     return price, order
+
 
 def calculate_stop_loss_factor(op, df):
     sl_price = None
@@ -156,8 +159,9 @@ def calculate_stop_loss_factor(op, df):
                 starting += 5
     return sl_price
 
+
 def agripina(s, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, sl_tp_ratio, sl_limit, sl_low_limit):
-    op = Oportunities.objects.get(symbol=s.symbol, timeframe=15)
+    op = Oportunities.objects.get(symbol=s.symbol, timeframe=60)
     if op.type == 'OPEN':
         return
     macdhistogram = df['macd_histogram'].iloc[0]
@@ -177,17 +181,14 @@ def agripina(s, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, sl_tp_ratio, sl_li
             if macdhistogram < 0:
                 retry_on_database_error(update_opportunities, op, macd=True)
         if not op.rsi:
-
             if rsi <= rsi_sell:
                 retry_on_database_error(update_opportunities, op, rsi=True)
-    # --------------------check
-        # the bullish indicators   ----------------------------------------
+    # --------------------check the bullish indicators   ----------------------------------------
     if op.type == 'BUY':
         if not op.macd:
             if macdhistogram > 0:
                 retry_on_database_error(update_opportunities, op, macd=True)
         if not op.rsi:
-
             if rsi >= rsi_buy:
                 retry_on_database_error(update_opportunities, op, rsi=True)
 
@@ -228,11 +229,12 @@ def agripina(s, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, sl_tp_ratio, sl_li
                         rsi_, stop_loss, take_profit, leverage, stopPrice_precision, sl_order_id, position_id)
         retry_on_database_error(update_opportunities, op, type='OPEN')
 
+
 def traeder():
-    symbols = Optimum_parameter.objects.filter(timeframe=15).order_by('-pnl')
+    symbols = Optimum_parameter.objects.filter(timeframe=60).order_by('-pnl')
     for s in symbols:
         symbols = [s.symbol.symbol]
-        interval = '15m'
+        interval = '1h'
         limit = 100
         df = CryptoAnalyzer(symbols=symbols, interval=interval, limit=limit).analyze_crypto()
         df = df[::-1].reset_index(drop=True)
@@ -245,22 +247,17 @@ def traeder():
         sl_low_limit = s.sl_low_limit
         agripina(s, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, sl_tp_ratio, sl_limit, sl_low_limit)
 
+
 def run_scheduled_pattern():
     while True:
         current_time = datetime.datetime.now()
-        minutes_to_next_interval = (15 - current_time.minute % 15) % 15
-        next_start_time = current_time + datetime.timedelta(minutes=minutes_to_next_interval)
+        next_start_time = current_time.replace(minute=00, second=30, microsecond=0) + datetime.timedelta(hours=1)
         remaining_time = (next_start_time - current_time).total_seconds()
         remaining_time = max(0, remaining_time)
         print(f"Waiting for {remaining_time / 60} minutes until {next_start_time}")
         time.sleep(remaining_time)
-        task_start_time = datetime.datetime.now()
         traeder()
-        time.sleep(60)
-        task_duration = (datetime.datetime.now() - task_start_time).total_seconds()
-        remaining_time = (next_start_time - datetime.datetime.now()).total_seconds()
-        remaining_time = max(0, remaining_time - task_duration)
-        print(f"Waiting for {remaining_time / 60} minutes until the next interval")
+        print("Executing your task.")
 
 
 run_scheduled_pattern()
