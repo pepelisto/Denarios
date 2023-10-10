@@ -4,13 +4,26 @@ from bots.A_A.functions.CryptoAnalyzer import CryptoAnalyzer
 from bots.A_A.functions.Take_position import BinanceTrader
 import time
 import datetime
-from django.db import transaction
+from django.db import transaction, DatabaseError
 
 from Denarios.settings import DATABASES, INSTALLED_APPS
 settings.configure(DATABASES=DATABASES, INSTALLED_APPS=INSTALLED_APPS)
 django.setup()
 
 from app.models import *
+
+MAX_RETRIES = 10
+
+def retry_on_database_error(func, *args, **kwargs):
+    for _ in range(MAX_RETRIES):
+        try:
+            result = func(*args, **kwargs)
+            return result
+        except DatabaseError as e:
+            print(f"Database error: {e}. Retrying...")
+            time.sleep(2)  # Add a 2-second delay before retrying
+    print(f"Max retries reached. Unable to complete the operation.")
+    return None
 
 @transaction.atomic
 def update_opportunities(op, type=None, stock_rsi=None, macd=None, rsi=None):
@@ -23,6 +36,20 @@ def update_opportunities(op, type=None, stock_rsi=None, macd=None, rsi=None):
     if rsi is not None:
         op.rsi = rsi
     op.save()
+
+@transaction.atomic
+def update_position(po, sl_order_id=None, alt_TP_SL=None, sl_price=None):
+    if sl_order_id is not None:
+        po.sl_order_id = sl_order_id
+    if alt_TP_SL is not None:
+        po.alt_TP_SL = alt_TP_SL
+    if sl_price is not None:
+        po.sl_price = sl_price
+    po.save()
+
+@transaction.atomic
+def delete_position(symbol, timeframe):
+    Open_position.objects.get(symbol_id=symbol, timeframe=timeframe).delete()
 
 @transaction.atomic
 def close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method):
@@ -62,11 +89,11 @@ def close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, clos
         alt_TP_SL=po.alt_TP_SL,
         timeframe=60,
     )
-    Open_position.objects.get(symbol_id=s.symbol.pk, timeframe=60).delete()
+    retry_on_database_error(delete_position, s.symbol.pk, 15)
     op = Oportunities.objects.get(symbol_id=s.symbol.pk, timeframe=60)
-    update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
+    retry_on_database_error(update_opportunities, op, type='NONE', stock_rsi=False, macd=False, rsi=False)
 
-@transaction.atomic
+
 def adjust_sl(symbol, side, stop_loss, stopPrice_precision, order_id):
     trader = BinanceTrader()
     r = trader.cancel_order(symbol, order_id)
@@ -75,7 +102,7 @@ def adjust_sl(symbol, side, stop_loss, stopPrice_precision, order_id):
     new_sl, new_order_id = place_order_with_retry(trader, symbol, side, stop_loss, 'STOP_MARKET', stopPrice_precision)
     return new_sl, new_order_id
 
-@transaction.atomic
+
 def place_order_with_retry(trader, symbol, side, price, kind, stopPrice_precision):
     order_placed = False
     order = None
@@ -103,7 +130,7 @@ def place_order_with_retry(trader, symbol, side, price, kind, stopPrice_precisio
                 raise
     return price, order
 
-@transaction.atomic
+
 def anastasia(s, df, sl_tp_ratio, sl_limit, sl_low_limit):
     try:
         po = Open_position.objects.get(symbol_id=s.symbol.pk, timeframe=60)
@@ -127,19 +154,19 @@ def anastasia(s, df, sl_tp_ratio, sl_limit, sl_low_limit):
         if low <= sl_p:
             sl_period = True
         if tp_period and not sl_period:
-            close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='TP')
+            retry_on_database_error(close_position, s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='TP')
             return
         elif not tp_period and sl_period:
-            close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='SL')
+            retry_on_database_error(close_position, s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='SL')
             return
         elif tp_period and sl_period:
             tp_indicator = high - tp_p
             sl_indicator = sl_p - low
             if tp_indicator > sl_indicator:
-                close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='TP')
+                retry_on_database_error(close_position, s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='TP')
                 return
             else:
-                close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='SL')
+                retry_on_database_error(close_position, s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='SL')
                 return
         aumento = (high - po.entry_price)/po.entry_price
         if aumento > (alteraciones + 1) * 0.003:
@@ -153,19 +180,19 @@ def anastasia(s, df, sl_tp_ratio, sl_limit, sl_low_limit):
         if high >= sl_p:
             sl_period = True
         if tp_period and not sl_period:
-            close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='TP')
+            retry_on_database_error(close_position, s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='TP')
             return
         elif not tp_period and sl_period:
-            close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='SL')
+            retry_on_database_error(close_position, s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='SL')
             return
         elif tp_period and sl_period:
             tp_indicator = tp_p - low
             sl_indicator = high - sl_p
             if tp_indicator > sl_indicator:
-                close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='TP')
+                retry_on_database_error(close_position, s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='TP')
                 return
             else:
-                close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='SL')
+                retry_on_database_error(close_position, s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='SL')
                 return
         aumento = -((low - po.entry_price)/po.entry_price)
         if aumento > (alteraciones + 1) * 0.003:
@@ -178,12 +205,10 @@ def anastasia(s, df, sl_tp_ratio, sl_limit, sl_low_limit):
         side = po.type
         symbol = s.symbol.symbol
         new_sl, new_order_id = adjust_sl(symbol, side, stop_loss, precision, sl_order_id)
-        po.sl_order_id = new_order_id
-        po.alt_TP_SL = alteraciones + 1
-        po.sl_price = new_sl
-        po.save()
+        atl = alteraciones + 1
+        retry_on_database_error(po, new_order_id, atl, new_sl)
 
-@transaction.atomic
+
 def traeder():
     open_positions = Open_position.objects.filter(timeframe=60).values_list('symbol_id', flat=True)
     if not open_positions.exists():
@@ -200,7 +225,7 @@ def traeder():
         sl_low_limit = s.sl_low_limit
         anastasia(s, df, sl_tp_ratio, sl_limit, sl_low_limit)
 
-@transaction.atomic
+
 def run_scheduled_pattern():
     while True:
         # Get the current time

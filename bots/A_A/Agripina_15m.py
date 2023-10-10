@@ -4,13 +4,26 @@ from bots.A_A.functions.CryptoAnalyzer import CryptoAnalyzer
 from bots.A_A.functions.Take_position import BinanceTrader
 import time
 import datetime
-from django.db import transaction
+from django.db import transaction, DatabaseError
 
 from Denarios.settings import DATABASES, INSTALLED_APPS
 settings.configure(DATABASES=DATABASES, INSTALLED_APPS=INSTALLED_APPS)
 django.setup()
 
 from app.models import *
+
+MAX_RETRIES = 10
+
+def retry_on_database_error(func, *args, **kwargs):
+    for _ in range(MAX_RETRIES):
+        try:
+            result = func(*args, **kwargs)
+            return result
+        except DatabaseError as e:
+            print(f"Database error: {e}. Retrying...")
+            time.sleep(2)  # Add a 2-second delay before retrying
+    print(f"Max retries reached. Unable to complete the operation.")
+    return None
 
 @transaction.atomic
 def update_opportunities(op, type=None, stock_rsi=None, macd=None, rsi=None):
@@ -46,7 +59,6 @@ def create_position(symbol_, type_, entry_price_, quantity_, open_date_, stoch_,
         alt_TP_SL=0,
     )
 
-@transaction.atomic
 def open_position(symbol, side, stop_loss_factor, take_profit_factor, usdt_size):
 
     trader = BinanceTrader()
@@ -78,7 +90,6 @@ def open_position(symbol, side, stop_loss_factor, take_profit_factor, usdt_size)
 
     return entry_price, stop_loss, take_profit, leverage, stopPrice_precision, sl_order_id, position_id
 
-@transaction.atomic
 def place_order_with_retry(trader, symbol, side, price, kind, position_id, stopPrice_precision, factor):
     order_placed = False
     order = None
@@ -104,7 +115,6 @@ def place_order_with_retry(trader, symbol, side, price, kind, position_id, stopP
                 raise
     return price, order
 
-@transaction.atomic
 def calculate_stop_loss_factor(op, df):
     sl_price = None
     sl_price_2 = None
@@ -146,7 +156,6 @@ def calculate_stop_loss_factor(op, df):
                 starting += 5
     return sl_price
 
-@transaction.atomic
 def agripina(s, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, sl_tp_ratio, sl_limit, sl_low_limit):
     op = Oportunities.objects.get(symbol=s.symbol, timeframe=15)
     if op.type == 'OPEN':
@@ -158,26 +167,29 @@ def agripina(s, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, sl_tp_ratio, sl_li
     #---------------------check the stochastich rsi indicators ----------------------------------------
     if srsik >= stoch_sell and srsid >= stoch_sell:
         if op.type != 'SELL':
-            update_opportunities(op, type='SELL', stock_rsi=True, macd=False, rsi=False)
+            retry_on_database_error(update_opportunities, op, type='SELL', stock_rsi=True, macd=False, rsi=False)
     elif srsik <= stoch_buy and srsid <= stoch_buy:
         if op.type != 'BUY':
-            update_opportunities(op, type='BUY', stock_rsi=True, macd=False, rsi=False)
+            retry_on_database_error(update_opportunities, op, type='BUY', stock_rsi=True, macd=False, rsi=False)
     # ----------------------check the bearish indicators   ----------------------------------------
     if op.type == 'SELL':
         if not op.macd:
             if macdhistogram < 0:
-                update_opportunities(op, macd=True)
+                retry_on_database_error(update_opportunities, op, macd=True)
         if not op.rsi:
+
             if rsi <= rsi_sell:
-                update_opportunities(op, rsi=True)
-    # --------------------check the bullish indicators   ----------------------------------------
+                retry_on_database_error(update_opportunities, op, rsi=True)
+    # --------------------check
+        # the bullish indicators   ----------------------------------------
     if op.type == 'BUY':
         if not op.macd:
             if macdhistogram > 0:
-                update_opportunities(op, macd=True)
+                retry_on_database_error(update_opportunities, op, macd=True)
         if not op.rsi:
+
             if rsi >= rsi_buy:
-                update_opportunities(op, rsi=True)
+                retry_on_database_error(update_opportunities, op, rsi=True)
 
     if op.macd and op.rsi and op.stock_rsi:
         entry_price_ = df['close'].iloc[0]
@@ -193,7 +205,7 @@ def agripina(s, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, sl_tp_ratio, sl_li
             if abs(sl_factor) > sl_limit:
                 sl_price = entry_price_ * (1 - sl_limit)
             elif abs(sl_factor) < sl_low_limit:
-                update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
+                retry_on_database_error(update_opportunities, op, type='NONE', stock_rsi=False, macd=False, rsi=False)
                 return
         else:
             stoch_ = stoch_sell
@@ -202,7 +214,7 @@ def agripina(s, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, sl_tp_ratio, sl_li
             if sl_factor > sl_limit:
                 sl_price = entry_price_ * (1 + sl_limit)
             elif sl_factor < sl_low_limit:
-                update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
+                retry_on_database_error(update_opportunities, op, type='NONE', stock_rsi=False, macd=False, rsi=False)
                 return
         #--------------aqui abrir posicion en binance-----------------------------
         sl_factor = (sl_price / entry_price_) - 1
@@ -212,11 +224,10 @@ def agripina(s, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, sl_tp_ratio, sl_li
         loss_factor = 1 + sl_factor * (1.05)
         entry_price, stop_loss, take_profit, leverage, stopPrice_precision, sl_order_id, position_id \
             = open_position(sym, type_, loss_factor, profit_factor, usdt_size)
-        create_position(symbol_, type_, entry_price, quantity_, open_date_, stoch_,
+        retry_on_database_error(create_position, symbol_, type_, entry_price, quantity_, open_date_, stoch_,
                         rsi_, stop_loss, take_profit, leverage, stopPrice_precision, sl_order_id, position_id)
-        update_opportunities(op, type='OPEN')
+        retry_on_database_error(update_opportunities, op, type='OPEN')
 
-@transaction.atomic
 def traeder():
     symbols = Optimum_parameter.objects.filter(timeframe=15).order_by('-pnl')
     for s in symbols:
@@ -234,7 +245,6 @@ def traeder():
         sl_low_limit = s.sl_low_limit
         agripina(s, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, sl_tp_ratio, sl_limit, sl_low_limit)
 
-@transaction.atomic
 def run_scheduled_pattern():
     while True:
         current_time = datetime.datetime.now()
@@ -246,6 +256,7 @@ def run_scheduled_pattern():
         time.sleep(remaining_time)
         task_start_time = datetime.datetime.now()
         traeder()
+        time.sleep(60)
         task_duration = (datetime.datetime.now() - task_start_time).total_seconds()
         remaining_time = (next_start_time - datetime.datetime.now()).total_seconds()
         remaining_time = max(0, remaining_time - task_duration)
