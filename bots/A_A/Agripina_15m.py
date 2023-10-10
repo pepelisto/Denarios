@@ -1,8 +1,7 @@
-import datetime
 from django.conf import settings
 import django
-from CryptoAnalyzer import CryptoAnalyzer
-from Take_position import BinanceTrader
+from bots.A_A.functions.CryptoAnalyzer import CryptoAnalyzer
+from bots.A_A.functions.Take_position import BinanceTrader
 import time
 import datetime
 
@@ -233,26 +232,19 @@ def traeder():
 
 def run_scheduled_pattern():
     while True:
-        # Get the current time
         current_time = datetime.datetime.now()
-
-        # Calculate the minutes to the next 15-minute interval
         minutes_to_next_interval = (15 - current_time.minute % 15) % 15
-
-        # Calculate the start time for the next 15-minute interval
-        next_start_time = current_time + datetime.timedelta(minutes=minutes_to_next_interval, seconds=30, microseconds=0)
-
-        # Calculate the remaining time until the next start time
+        next_start_time = current_time + datetime.timedelta(minutes=minutes_to_next_interval)
         remaining_time = (next_start_time - current_time).total_seconds()
-
-        # If remaining time is negative, set it to 0 to avoid negative sleep time
         remaining_time = max(0, remaining_time)
-
         print(f"Waiting for {remaining_time / 60} minutes until {next_start_time}")
         time.sleep(remaining_time)
-
+        task_start_time = datetime.datetime.now()
         traeder()
-        print("Executing your task.")
+        task_duration = (datetime.datetime.now() - task_start_time).total_seconds()
+        remaining_time = (next_start_time - datetime.datetime.now()).total_seconds()
+        remaining_time = max(0, remaining_time - task_duration)
+        print(f"Waiting for {remaining_time / 60} minutes until the next interval")
 
 
 run_scheduled_pattern()

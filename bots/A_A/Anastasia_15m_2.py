@@ -1,7 +1,7 @@
 from django.conf import settings
 import django
-from CryptoAnalyzer import CryptoAnalyzer
-from Take_position import BinanceTrader
+from bots.A_A.functions.CryptoAnalyzer import CryptoAnalyzer
+from bots.A_A.functions.Take_position import BinanceTrader
 import time
 import datetime
 
@@ -189,6 +189,7 @@ def traeder():
         interval = '15m'
         limit = 400
         df = CryptoAnalyzer(symbols=symbols, interval=interval, limit=limit).analyze_crypto()
+        df = df[::-1].reset_index(drop=True)
         sl_tp_ratio = s.tp_sl_ratio
         sl_limit = s.sl_limit
         sl_low_limit = s.sl_low_limit

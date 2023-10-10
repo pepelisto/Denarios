@@ -1,8 +1,7 @@
-import datetime
 from django.conf import settings
 import django
-from CryptoAnalyzer import CryptoAnalyzer
-from Take_position import BinanceTrader
+from bots.A_A.functions.CryptoAnalyzer import CryptoAnalyzer
+from bots.A_A.functions.Take_position import BinanceTrader
 import time
 import datetime
 
