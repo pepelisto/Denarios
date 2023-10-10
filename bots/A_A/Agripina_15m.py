@@ -4,6 +4,7 @@ from bots.A_A.functions.CryptoAnalyzer import CryptoAnalyzer
 from bots.A_A.functions.Take_position import BinanceTrader
 import time
 import datetime
+from django.db import transaction
 
 from Denarios.settings import DATABASES, INSTALLED_APPS
 settings.configure(DATABASES=DATABASES, INSTALLED_APPS=INSTALLED_APPS)
@@ -11,6 +12,7 @@ django.setup()
 
 from app.models import *
 
+@transaction.atomic
 def update_opportunities(op, type=None, stock_rsi=None, macd=None, rsi=None):
     if type is not None:
         op.type = type
@@ -22,7 +24,7 @@ def update_opportunities(op, type=None, stock_rsi=None, macd=None, rsi=None):
         op.rsi = rsi
     op.save()
 
-
+@transaction.atomic
 def create_position(symbol_, type_, entry_price_, quantity_, open_date_, stoch_, rsi_, sl_price, take_profit,
                     leverage, stopPrice_precision, sl_order_id, position_id):
     Open_position.objects.create(
@@ -44,7 +46,7 @@ def create_position(symbol_, type_, entry_price_, quantity_, open_date_, stoch_,
         alt_TP_SL=0,
     )
 
-
+@transaction.atomic
 def open_position(symbol, side, stop_loss_factor, take_profit_factor, usdt_size):
 
     trader = BinanceTrader()
@@ -76,6 +78,7 @@ def open_position(symbol, side, stop_loss_factor, take_profit_factor, usdt_size)
 
     return entry_price, stop_loss, take_profit, leverage, stopPrice_precision, sl_order_id, position_id
 
+@transaction.atomic
 def place_order_with_retry(trader, symbol, side, price, kind, position_id, stopPrice_precision, factor):
     order_placed = False
     order = None
@@ -101,7 +104,7 @@ def place_order_with_retry(trader, symbol, side, price, kind, position_id, stopP
                 raise
     return price, order
 
-
+@transaction.atomic
 def calculate_stop_loss_factor(op, df):
     sl_price = None
     sl_price_2 = None
@@ -143,7 +146,7 @@ def calculate_stop_loss_factor(op, df):
                 starting += 5
     return sl_price
 
-
+@transaction.atomic
 def agripina(s, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, sl_tp_ratio, sl_limit, sl_low_limit):
     op = Oportunities.objects.get(symbol=s.symbol, timeframe=15)
     if op.type == 'OPEN':
@@ -213,6 +216,7 @@ def agripina(s, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, sl_tp_ratio, sl_li
                         rsi_, stop_loss, take_profit, leverage, stopPrice_precision, sl_order_id, position_id)
         update_opportunities(op, type='OPEN')
 
+@transaction.atomic
 def traeder():
     symbols = Optimum_parameter.objects.filter(timeframe=15).order_by('-pnl')
     for s in symbols:
@@ -230,6 +234,7 @@ def traeder():
         sl_low_limit = s.sl_low_limit
         agripina(s, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, sl_tp_ratio, sl_limit, sl_low_limit)
 
+@transaction.atomic
 def run_scheduled_pattern():
     while True:
         current_time = datetime.datetime.now()

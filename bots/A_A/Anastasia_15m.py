@@ -4,6 +4,7 @@ from bots.A_A.functions.CryptoAnalyzer import CryptoAnalyzer
 from bots.A_A.functions.Take_position import BinanceTrader
 import time
 import datetime
+from django.db import transaction
 
 from Denarios.settings import DATABASES, INSTALLED_APPS
 settings.configure(DATABASES=DATABASES, INSTALLED_APPS=INSTALLED_APPS)
@@ -11,6 +12,7 @@ django.setup()
 
 from app.models import *
 
+@transaction.atomic
 def update_opportunities(op, type=None, stock_rsi=None, macd=None, rsi=None):
     if type is not None:
         op.type = type
@@ -22,7 +24,7 @@ def update_opportunities(op, type=None, stock_rsi=None, macd=None, rsi=None):
         op.rsi = rsi
     op.save()
 
-
+@transaction.atomic
 def close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method):
     if close_method == "TP":
         exit_price = po.tp_price
@@ -64,7 +66,7 @@ def close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, clos
     op = Oportunities.objects.get(symbol_id=s.symbol.pk, timeframe=15)
     update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
 
-
+@transaction.atomic
 def adjust_sl(symbol, side, stop_loss, stopPrice_precision, order_id):
     trader = BinanceTrader()
     r = trader.cancel_order(symbol, order_id)
@@ -73,6 +75,7 @@ def adjust_sl(symbol, side, stop_loss, stopPrice_precision, order_id):
     new_sl, new_order_id = place_order_with_retry(trader, symbol, side, stop_loss, 'STOP_MARKET', stopPrice_precision)
     return new_sl, new_order_id
 
+@transaction.atomic
 def place_order_with_retry(trader, symbol, side, price, kind, stopPrice_precision):
     order_placed = False
     order = None
@@ -100,7 +103,7 @@ def place_order_with_retry(trader, symbol, side, price, kind, stopPrice_precisio
                 raise
     return price, order
 
-
+@transaction.atomic
 def anastasia(s, df, sl_tp_ratio, sl_limit, sl_low_limit):
     try:
         po = Open_position.objects.get(symbol_id=s.symbol.pk, timeframe=15)
@@ -179,6 +182,7 @@ def anastasia(s, df, sl_tp_ratio, sl_limit, sl_low_limit):
         po.sl_price = new_sl
         po.save()
 
+@transaction.atomic
 def traeder():
     open_positions = Open_position.objects.filter(timeframe=15).values_list('symbol_id', flat=True)
     if not open_positions.exists():
@@ -195,6 +199,7 @@ def traeder():
         sl_low_limit = s.sl_low_limit
         anastasia(s, df, sl_tp_ratio, sl_limit, sl_low_limit)
 
+@transaction.atomic
 def run_scheduled_pattern():
     while True:
         current_time = datetime.datetime.now()
