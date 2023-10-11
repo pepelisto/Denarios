@@ -242,11 +242,11 @@ class Agripina:
             symbols = [s.symbol.symbol]
             interval = '15m'
             limit = 100
-            df = False
-            while not df:
+            df_found = False
+            while not df_found:
                 try:
                     df = CryptoAnalyzer(symbols=symbols, interval=interval, limit=limit).analyze_crypto()
-                    df = True
+                    df_found = True
                 except ValueError as e:
                     print('error getting data from binance api')
                     time.sleep(120)
