@@ -114,8 +114,9 @@ class Anastasia:
         order = None
         while not order_placed:
             try:
-                order = trader.place_order_tp_sl(symbol, side, price=price, kind=kind)
-                print(order)
+                data = trader.place_order_tp_sl(symbol, side, price=price, kind=kind)
+                print(data)
+                order = data['orderId']
                 order_placed = True
             except ValueError as e:
                 error_message = str(e)
