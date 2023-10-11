@@ -95,8 +95,8 @@ class Anastasia:
             alt_TP_SL=po.alt_TP_SL,
             timeframe=self.timeframe,
         )
-        self.retry_on_database_error(self.delete_position, s.symbol.pk, 15)
-        op = Oportunities.objects.get(symbol_id=s.symbol.pk, timeframe=15)
+        self.retry_on_database_error(self.delete_position, s.symbol.pk, self.timeframe)
+        op = Oportunities.objects.get(symbol_id=s.symbol.pk, timeframe=self.timeframe)
         self.retry_on_database_error(self.update_opportunities, op, type='NONE', stock_rsi=False, macd=False, rsi=False)
 
 
@@ -139,7 +139,7 @@ class Anastasia:
 
     def anastasia(self, s, df, sl_tp_ratio, sl_limit, sl_low_limit):
         try:
-            po = Open_position.objects.get(symbol_id=s.symbol.pk, timeframe=15)
+            po = Open_position.objects.get(symbol_id=s.symbol.pk, timeframe=self.timeframe)
         except:
             return
         type_ = po.type
