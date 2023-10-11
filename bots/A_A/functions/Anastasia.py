@@ -223,6 +223,14 @@ class Anastasia:
             symbols = [s.symbol.symbol]
             interval = '15m'
             limit = 400
+            df = False
+            while not df:
+                try:
+                    df = CryptoAnalyzer(symbols=symbols, interval=interval, limit=limit).analyze_crypto()
+                    df = True
+                except ValueError as e:
+                    print('error getting data from binance api')
+                    time.sleep(120)
             df = CryptoAnalyzer(symbols=symbols, interval=interval, limit=limit).analyze_crypto()
             df = df[::-1].reset_index(drop=True)
             sl_tp_ratio = s.tp_sl_ratio

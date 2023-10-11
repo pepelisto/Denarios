@@ -242,7 +242,14 @@ class Agripina:
             symbols = [s.symbol.symbol]
             interval = '15m'
             limit = 100
-            df = CryptoAnalyzer(symbols=symbols, interval=interval, limit=limit).analyze_crypto()
+            df = False
+            while not df:
+                try:
+                    df = CryptoAnalyzer(symbols=symbols, interval=interval, limit=limit).analyze_crypto()
+                    df = True
+                except ValueError as e:
+                    print('error getting data from binance api')
+                    time.sleep(120)
             df = df[::-1].reset_index(drop=True)
             stoch_buy = 20
             stoch_sell = 80
