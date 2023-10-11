@@ -174,7 +174,7 @@ class Anastasia:
                 else:
                     self.retry_on_database_error(self.close_position, s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='SL')
                     return
-            aumento = (high - po.entry_price)/po.entry_price
+            aumento = (close - po.entry_price)/po.entry_price
             if aumento > (alteraciones + 1) * 0.003:
                 ajuste = True
                 stop_loss = round(sl_p + po.entry_price * 0.003, precision)
@@ -199,7 +199,7 @@ class Anastasia:
                 else:
                     self.retry_on_database_error(self.close_position, s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='SL')
                     return
-            aumento = -((low - po.entry_price)/po.entry_price)
+            aumento = -((close - po.entry_price)/po.entry_price)
             if aumento > (alteraciones + 1) * 0.003:
                 ajuste = True
                 stop_loss = round(sl_p - po.entry_price * 0.003, precision)
