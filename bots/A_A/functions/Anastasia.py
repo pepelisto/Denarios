@@ -175,10 +175,17 @@ class Anastasia:
                 else:
                     self.retry_on_database_error(self.close_position, s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='SL')
                     return
-            aumento = (close - po.entry_price)/po.entry_price
-            if aumento > (alteraciones + 1) * 0.003:
-                ajuste = True
-                stop_loss = round(sl_p + po.entry_price * 0.003, precision)
+            aumento = close - po.entry_price
+            if alteraciones == 0:
+                sl_inicial = (po.entry_price - po.sl_price)
+                if aumento > sl_inicial:
+                    ajuste = True
+                    stop_loss = round(po.entry_price + (po.entry_price * 0.0009), precision)
+            elif alteraciones == 1:
+                tp_split_3 = (po.tp_price - po.entry_price)/3
+                if aumento > tp_split_3 * 2:
+                    ajuste = True
+                    stop_loss = round(po.entry_price + tp_split_3 + (po.entry_price * 0.0009), precision)
 
         else:
             if low <= tp_p:
@@ -200,10 +207,17 @@ class Anastasia:
                 else:
                     self.retry_on_database_error(self.close_position, s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='SL')
                     return
-            aumento = -((close - po.entry_price)/po.entry_price)
-            if aumento > (alteraciones + 1) * 0.003:
-                ajuste = True
-                stop_loss = round(sl_p - po.entry_price * 0.003, precision)
+            aumento = -(close - po.entry_price)
+            if alteraciones == 0:
+                sl_inicial = -(po.entry_price - po.sl_price)
+                if aumento > sl_inicial:
+                    ajuste = True
+                    stop_loss = round(po.entry_price - (po.entry_price * 0.0009), precision)
+            elif alteraciones == 1:
+                tp_split_3 = -(po.tp_price - po.entry_price)/3
+                if aumento > tp_split_3 * 2:
+                    ajuste = True
+                    stop_loss = round(po.entry_price - tp_split_3 - (po.entry_price * 0.0009), precision)
 
         if ajuste:
             sl_order_id = po.sl_order_id
