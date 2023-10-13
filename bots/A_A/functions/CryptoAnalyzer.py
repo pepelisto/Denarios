@@ -1,6 +1,7 @@
 import requests
 import pandas as pd
 import ta
+import time
 
 
 class CryptoAnalyzer:
@@ -11,9 +12,15 @@ class CryptoAnalyzer:
 
     def fetch_data(self, symbol):
         url = f"https://fapi.binance.com/fapi/v1/markPriceKlines?symbol={symbol.upper()}&interval={self.interval}&limit={self.limit}"
-        response = requests.get(url)
+        res = False
+        while not res:
+            try:
+                response = requests.get(url)
+                res = True
+            except ValueError as e:
+                print('error getting data from binance api, waiting for 2 minutes ')
+                time.sleep(120)
         data = response.json()
-
         df = pd.DataFrame(data, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume',
                                          'close_time', 'quote_asset_volume', 'num_trades',
                                          'taker_buy_base', 'taker_buy_quote', 'ignore'])
