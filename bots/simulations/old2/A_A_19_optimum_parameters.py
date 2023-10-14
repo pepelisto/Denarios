@@ -310,7 +310,7 @@ def get_parameters(s, df):
             sl_limit_buy , sl_limit_sell,  sl_low_limit_buy, sl_low_limit_sell, pnl_buy, pnl_sell
 
 def simulator():
-    path = "samples/USDT/2023_15m/"
+    path = "../samples/USDT/2023_15m/"
     symbols = Symbol.objects.filter(find_in_api=True)
     for s in symbols:
         print("simulando " + str(s.symbol))

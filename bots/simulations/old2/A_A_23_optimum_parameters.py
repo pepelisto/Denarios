@@ -1,6 +1,5 @@
-
 import pandas as pd
-import datetime
+from datetime import datetime, timedelta
 import numpy as np
 from django.conf import settings
 import django
@@ -9,6 +8,7 @@ from Denarios.settings import DATABASES, INSTALLED_APPS
 settings.configure(DATABASES=DATABASES, INSTALLED_APPS=INSTALLED_APPS)
 django.setup()
 
+from django.db.models import Avg, Max, Min, FloatField, Count, ExpressionWrapper, F, Sum, IntegerField, Case, When
 from app.models import *
 
 def update_opportunities(op, type=None, stock_rsi=None, macd=None, rsi=None):
@@ -38,7 +38,7 @@ def create_position(symbol_, type_, entry_price_, quantity_, open_date_, stoch_,
         tp_price=tp__,
     )
 
-def close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method):
+def close_position(s, po, close_date_, close_method, sl_tp_ratio=None, sl_limit=None, sl_low_limit=None):
     if close_method == "TP":
         exit_price = po.tp_price
     else:
@@ -64,21 +64,21 @@ def close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, clos
         quantity=quantity_,
         open_date=po.open_date,
         close_date=close_date_,
-        stoch_open=po.stoch,
-        rsi_open=po.rsi,
+        stoch_open=9,
+        rsi_open=9,
         close_method=close_method,
         tp_price=po.tp_price,
         sl_price=po.sl_price,
         tp_sl_ratio=sl_tp_ratio,
         sl_limit=sl_limit,
         sl_low_limit=sl_low_limit,
-        simulation=65,
+        simulation=90,
     )
     Open_position_sim.objects.get(symbol_id=s.pk).delete()
     op = Oportunities_sim.objects.get(symbol_id=s.pk)
     update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
 
-def anastasia(s, symbol, df, idx, sl_tp_ratio, sl_limit, sl_low_limit):
+def anastasia(s, symbol, df, idx):
     try:
         po = Open_position_sim.objects.get(symbol_id=s.pk)
     except:
@@ -98,70 +98,69 @@ def anastasia(s, symbol, df, idx, sl_tp_ratio, sl_limit, sl_low_limit):
         if low <= sl_p:
             sl_period = True
         if tp_period and not sl_period:
-            close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='TP')
+            close_position(s, po, close_date_, close_method='TP')
             return
         elif not tp_period and sl_period:
-            close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='SL')
+            close_position(s, po, close_date_, close_method='SL')
             return
         elif tp_period and sl_period:
             tp_indicator = high - tp_p
             sl_indicator = sl_p - low
             if tp_indicator > sl_indicator:
-                close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='TP')
+                close_position(s, po, close_date_, close_method='TP')
                 return
             else:
-                close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='SL')
+                close_position(s, po, close_date_, close_method='SL')
                 return
 
-        if sl_tp_ratio >= 1:
-            if sl_p < po.entry_price + po.entry_price * 0.00036 * 2:
-                factor = (po.tp_price - po.entry_price) / 3
-                aumento = (high - po.entry_price)
-                if aumento > factor:
-                    po.sl_price = po.entry_price + po.entry_price * 0.00036 * 2
-                    po.save()
+        if sl_p < po.entry_price + po.entry_price * 0.00036 * 2:
+            factor = (po.tp_price - po.entry_price) / 3
+            aumento = (high - po.entry_price)
+            if aumento > factor:
+                po.sl_price = po.entry_price + po.entry_price * 0.00036 * 2
+                po.save()
 
-            elif sl_p == po.entry_price + po.entry_price * 0.00036 * 2:
-                factor = (po.tp_price - po.entry_price) / 3
-                aumento = (high - po.entry_price)
-                if aumento > factor * 2:
-                    po.sl_price = po.entry_price + po.entry_price * 0.00036 * 2 + factor
-                    po.save()
+        elif sl_p == po.entry_price + po.entry_price * 0.00036 * 2:
+            factor = (po.tp_price - po.entry_price) / 3
+            aumento = (high - po.entry_price)
+            if aumento > factor * 2:
+                po.sl_price = po.entry_price + po.entry_price * 0.00036 * 2 + factor
+                po.save()
 
     else:
+
         if low <= tp_p:
             tp_period = True
         if high >= sl_p:
             sl_period = True
         if tp_period and not sl_period:
-            close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='TP')
+            close_position(s, po, close_date_, close_method='TP')
             return
         elif not tp_period and sl_period:
-            close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='SL')
+            close_position(s, po, close_date_, close_method='SL')
             return
         elif tp_period and sl_period:
             tp_indicator = tp_p - low
             sl_indicator = high - sl_p
             if tp_indicator > sl_indicator:
-                close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='TP')
+                close_position(s, po, close_date_, close_method='TP')
                 return
             else:
-                close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='SL')
+                close_position(s, po, close_date_, close_method='SL')
                 return
-        if sl_tp_ratio >= 1:
-            if sl_p > po.entry_price - po.entry_price * 0.00036 * 2:
-                factor = (po.tp_price - po.entry_price) / 3
-                aumento = (low - po.entry_price)
-                if aumento < factor:
-                    po.sl_price = po.entry_price - po.entry_price * 0.00036 * 2
-                    po.save()
+        if sl_p > po.entry_price - po.entry_price * 0.00036 * 2:
+            factor = (po.tp_price - po.entry_price) / 3
+            aumento = (low - po.entry_price)
+            if aumento < factor:
+                po.sl_price = po.entry_price - po.entry_price * 0.00036 * 2
+                po.save()
 
-            elif sl_p == po.entry_price - po.entry_price * 0.00036 * 2:
-                factor = (po.tp_price - po.entry_price) / 3
-                aumento = (low - po.entry_price)
-                if aumento < factor * 2:
-                    po.sl_price = po.entry_price - po.entry_price * 0.00036 * 2 + factor
-                    po.save()
+        elif sl_p == po.entry_price - po.entry_price * 0.00036 * 2:
+            factor = (po.tp_price - po.entry_price) / 3
+            aumento = (low - po.entry_price)
+            if aumento < factor * 2:
+                po.sl_price = po.entry_price - po.entry_price * 0.00036 * 2 + factor
+                po.save()
 
 def calculate_stop_loss_factor(op, df, idx):
     sl_price = None
@@ -204,7 +203,8 @@ def calculate_stop_loss_factor(op, df, idx):
                 starting += 5
     return sl_price
 
-def agripina(s, symbol, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp_ratio, sl_limit, sl_low_limit):
+def agripina(s, symbol, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp_ratio_buy, sl_tp_ratio_sell,
+                   sl_limit_buy , sl_limit_sell,  sl_low_limit_buy, sl_low_limit_sell, pnl_buy, pnl_sell):
     op = Oportunities_sim.objects.get(symbol_id=s.pk)
     if op.type == 'OPEN':
         return
@@ -244,59 +244,84 @@ def agripina(s, symbol, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp
         sl_price = calculate_stop_loss_factor(op, df, idx)
         sl_factor = (sl_price / entry_price_) - 1
         if op.type == 'BUY':
-            update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
-            return
-            # stoch_ = stoch_buy
-            # rsi_ = rsi_buy
-            # type_ = 'BUY'
-            # if abs(sl_factor) > sl_limit:
-            #     sl_price = entry_price_ * (1 - sl_limit)
-            # elif abs(sl_factor) < sl_low_limit:
-            #     update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
-            #     return
-            #     # sl_price = entry_price_ * (1 - sl_low_limit)
+            stoch_ = stoch_buy
+            rsi_ = rsi_buy
+            type_ = 'BUY'
+            if abs(sl_factor) > sl_limit_buy:
+                sl_price = entry_price_ * (1 - sl_limit_buy)
+            elif abs(sl_factor) < sl_low_limit_buy:
+                update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
+                return
+            sl_tp_ratio = sl_tp_ratio_buy
         else:
             stoch_ = stoch_sell
             rsi_ = rsi_sell
             type_ = 'SELL'
-            if sl_factor > sl_limit:
-                sl_price = entry_price_ * (1 + sl_limit)
-            elif sl_factor < sl_low_limit:
-                # sl_price = entry_price_ * (1 + sl_low_limit)
+            if sl_factor > sl_limit_sell:
+                sl_price = entry_price_ * (1 + sl_limit_sell)
+            elif sl_factor < sl_low_limit_sell:
                 update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
                 return
+            sl_tp_ratio = sl_tp_ratio_sell
         create_position(symbol_, type_, entry_price_, quantity_, open_date_, stoch_, rsi_, sl_price, sl_tp_ratio)
         update_opportunities(op, type='OPEN')
 
+def get_parameters(s, df, i):
+    start_date = datetime(2023, i, 1)
+    end_date = datetime(2023, i + 4, 1)
+    best = Closed_position_sim.objects.values(
+            'symbol__symbol', 'simulation', 'tp_sl_ratio', 'sl_low_limit', 'sl_limit'
+            ).filter(
+                  symbol__symbol=s.symbol,
+                  close_date__range=(start_date, end_date),
+                  simulation=15,
+            ).annotate(
+                pnl_total=Sum('profit'),
+            ).order_by('-pnl_total').first()
+    pnl_buy = best['pnl_total']
+    pnl_sell = best['pnl_total']
+    stoch_buy = 20
+    stoch_sell = 80
+    rsi_buy = 40
+    rsi_sell = 60
+    sl_tp_ratio_buy = best['tp_sl_ratio']
+    sl_tp_ratio_sell = best['tp_sl_ratio']
+    sl_low_limit_buy = best['sl_low_limit']
+    sl_low_limit_sell = best['sl_low_limit']
+    sl_limit_buy = best['sl_limit']
+    sl_limit_sell = best['sl_limit']
+
+    return stoch_buy, stoch_sell, rsi_buy, rsi_sell, sl_tp_ratio_buy, sl_tp_ratio_sell, \
+            sl_limit_buy , sl_limit_sell,  sl_low_limit_buy, sl_low_limit_sell, pnl_buy, pnl_sell
+
 def simulator():
-    path = "samples/USDT/2023_60m/"
+    path = "../samples/USDT/2023_15m/"
     symbols = Symbol.objects.filter(find_in_api=True)
-    for s in symbols:
-        print("simulando " + str(s.symbol))
-        symbol = s.symbol
-        csv_file_path = f"{path}{symbol}_simulation.csv"
-        df = pd.read_csv(csv_file_path)
-        num_rows = len(df)
-        for v1 in [0]:#quedo fijado en 80 y 20, pq la variacion no mostro impacto signifiactivo
-            stoch_buy = round(20 - v1, 2)
-            stoch_sell = round(80 + v1, 2)
-            for v2 in [-10]:#quedo fijado -10, pq es equivalente a ignorarlo.
-                rsi_buy = 50 + v2
-                rsi_sell = 50 - v2
-                for v3 in [3]:
-                    sl_tp_ratio = v3
-                    for v5 in [0.015]:
-                        sl_low_limit = v5
-                        for v4 in [0.04]:
-                            sl_limit = v4
-                            print(str(v3) + '  ' + str(v4))
-                            for idx in range(num_rows - 400, -1, -1):
-                                anastasia(s, symbol, df, idx, sl_tp_ratio, sl_limit, sl_low_limit)
-                                agripina(s, symbol, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp_ratio, sl_limit, sl_low_limit)
-                            op = Oportunities_sim.objects.get(symbol_id=s.pk)
-                            update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
-                            try:
-                                Open_position_sim.objects.get(symbol_id=s.pk).delete()
-                            except:
-                                pass
+    for i in [4]:
+        for s in symbols:
+            print("simulando " + str(s.symbol))
+            print(datetime.now())
+            symbol = s.symbol
+            csv_file_path = f"{path}{symbol}_simulation.csv"
+            df = pd.read_csv(csv_file_path)
+            num_rows = len(df)
+            try:
+                stoch_buy, stoch_sell, rsi_buy, rsi_sell, sl_tp_ratio_buy, sl_tp_ratio_sell, sl_limit_buy, sl_limit_sell, \
+                    sl_low_limit_buy, sl_low_limit_sell, pnl_buy, pnl_sell = get_parameters(s, df, i)
+            except:
+                continue
+            if pnl_buy < 10 or not pnl_buy:
+                continue
+            for idx in range(num_rows - 150, -1, -1):
+                date = pd.Timestamp(df.loc[idx, 'timestamp'])
+                if date < pd.Timestamp(2023, i + 6, 1) and date > pd.Timestamp(2023, i + 4, 1):
+                    anastasia(s, symbol, df, idx)
+                    agripina(s, symbol, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp_ratio_buy, sl_tp_ratio_sell,
+                               sl_limit_buy , sl_limit_sell,  sl_low_limit_buy, sl_low_limit_sell, pnl_buy, pnl_sell)
+            op = Oportunities_sim.objects.get(symbol_id=s.pk)
+            update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
+            try:
+                Open_position_sim.objects.get(symbol_id=s.pk).delete()
+            except:
+                pass
 simulator()

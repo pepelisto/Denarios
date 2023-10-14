@@ -72,7 +72,7 @@ def close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, clos
         tp_sl_ratio=sl_tp_ratio,
         sl_limit=sl_limit,
         sl_low_limit=sl_low_limit,
-        simulation=150,
+        simulation=65,
     )
     Open_position_sim.objects.get(symbol_id=s.pk).delete()
     op = Oportunities_sim.objects.get(symbol_id=s.pk)
@@ -269,7 +269,7 @@ def agripina(s, symbol, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp
         update_opportunities(op, type='OPEN')
 
 def simulator():
-    path = "samples/USDT/2023_15m/"
+    path = "../samples/USDT/2023_60m/"
     symbols = Symbol.objects.filter(find_in_api=True)
     for s in symbols:
         print("simulando " + str(s.symbol))
@@ -277,20 +277,20 @@ def simulator():
         csv_file_path = f"{path}{symbol}_simulation.csv"
         df = pd.read_csv(csv_file_path)
         num_rows = len(df)
-        for v1 in [0]:
+        for v1 in [0]:#quedo fijado en 80 y 20, pq la variacion no mostro impacto signifiactivo
             stoch_buy = round(20 - v1, 2)
             stoch_sell = round(80 + v1, 2)
-            for v2 in [-10]:
+            for v2 in [-10]:#quedo fijado -10, pq es equivalente a ignorarlo.
                 rsi_buy = 50 + v2
                 rsi_sell = 50 - v2
                 for v3 in [3]:
                     sl_tp_ratio = v3
-                    for v5 in [0.01]:#, 0.007, 0.001]:# este quedo fijoo para siempre
+                    for v5 in [0.015]:
                         sl_low_limit = v5
-                        for v4 in [0.04]:#, 0.05, 0.01]:
+                        for v4 in [0.04]:
                             sl_limit = v4
                             print(str(v3) + '  ' + str(v4))
-                            for idx in range(num_rows - 10000, -1, -1):
+                            for idx in range(num_rows - 400, -1, -1):
                                 anastasia(s, symbol, df, idx, sl_tp_ratio, sl_limit, sl_low_limit)
                                 agripina(s, symbol, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp_ratio, sl_limit, sl_low_limit)
                             op = Oportunities_sim.objects.get(symbol_id=s.pk)

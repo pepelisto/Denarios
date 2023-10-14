@@ -72,7 +72,7 @@ def close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, clos
         tp_sl_ratio=sl_tp_ratio,
         sl_limit=sl_limit,
         sl_low_limit=sl_low_limit,
-        simulation=6000000,
+        simulation=150,
     )
     Open_position_sim.objects.get(symbol_id=s.pk).delete()
     op = Oportunities_sim.objects.get(symbol_id=s.pk)
@@ -209,28 +209,34 @@ def agripina(s, symbol, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp
     if op.type == 'OPEN':
         return
     macdhistogram = df.loc[idx, 'MACD histogram']
+    srsik = df.loc[idx, 'St k']
+    srsid = df.loc[idx, 'St d']
     rsi = df.loc[idx, 'RSI']
     #---------------------check the stochastich rsi indicators ----------------------------------------
-    if rsi >= rsi_sell:
+    if srsik >= stoch_sell and srsid >= stoch_sell:
         if op.type != 'SELL':
-            update_opportunities(op, type='SELL', macd=False, rsi=True)
-    elif rsi <= rsi_buy:
+            update_opportunities(op, type='SELL', stock_rsi=True, macd=False, rsi=False)
+    elif srsik <= stoch_buy and srsid <= stoch_buy:
         if op.type != 'BUY':
-            update_opportunities(op, type='BUY', macd=False, rsi=True)
+            update_opportunities(op, type='BUY', stock_rsi=True, macd=False, rsi=False)
     # ----------------------check the bearish indicators   ----------------------------------------
     if op.type == 'SELL':
         if not op.macd:
             if macdhistogram < 0:
                 update_opportunities(op, macd=True)
-
+        if not op.rsi:
+            if rsi <= rsi_sell:
+                update_opportunities(op, rsi=True)
     # --------------------check the bullish indicators   ----------------------------------------
     if op.type == 'BUY':
         if not op.macd:
             if macdhistogram > 0:
                 update_opportunities(op, macd=True)
+        if not op.rsi:
+            if rsi >= rsi_buy:
+                update_opportunities(op, rsi=True)
 
-
-    if op.macd and op.rsi:
+    if op.macd and op.rsi and op.stock_rsi:
         entry_price_ = df.loc[idx, 'Close']
         quantity_ = 100
         open_date_ = df.loc[idx, 'timestamp']
@@ -238,15 +244,17 @@ def agripina(s, symbol, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp
         sl_price = calculate_stop_loss_factor(op, df, idx)
         sl_factor = (sl_price / entry_price_) - 1
         if op.type == 'BUY':
-            stoch_ = stoch_buy
-            rsi_ = rsi_buy
-            type_ = 'BUY'
-            if abs(sl_factor) > sl_limit:
-                sl_price = entry_price_ * (1 - sl_limit)
-            elif abs(sl_factor) < sl_low_limit:
-                update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
-                return
-                # sl_price = entry_price_ * (1 - sl_low_limit)
+            update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
+            return
+            # stoch_ = stoch_buy
+            # rsi_ = rsi_buy
+            # type_ = 'BUY'
+            # if abs(sl_factor) > sl_limit:
+            #     sl_price = entry_price_ * (1 - sl_limit)
+            # elif abs(sl_factor) < sl_low_limit:
+            #     update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
+            #     return
+            #     # sl_price = entry_price_ * (1 - sl_low_limit)
         else:
             stoch_ = stoch_sell
             rsi_ = rsi_sell
@@ -261,7 +269,7 @@ def agripina(s, symbol, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp
         update_opportunities(op, type='OPEN')
 
 def simulator():
-    path = "samples/USDT/2023_60m/"
+    path = "../samples/USDT/2023_15m/"
     symbols = Symbol.objects.filter(find_in_api=True)
     for s in symbols:
         print("simulando " + str(s.symbol))
@@ -269,20 +277,20 @@ def simulator():
         csv_file_path = f"{path}{symbol}_simulation.csv"
         df = pd.read_csv(csv_file_path)
         num_rows = len(df)
-        for v1 in [0]:#quedo fijado en 80 y 20, pq la variacion no mostro impacto signifiactivo
+        for v1 in [0]:
             stoch_buy = round(20 - v1, 2)
             stoch_sell = round(80 + v1, 2)
-            for v2 in [20]:#quedo fijado -10, pq es equivalente a ignorarlo.
-                rsi_buy = 50 - v2
-                rsi_sell = 50 + v2
+            for v2 in [-10]:
+                rsi_buy = 50 + v2
+                rsi_sell = 50 - v2
                 for v3 in [3]:
                     sl_tp_ratio = v3
-                    for v5 in [0.015]:
+                    for v5 in [0.01]:#, 0.007, 0.001]:# este quedo fijoo para siempre
                         sl_low_limit = v5
-                        for v4 in [0.04]:
+                        for v4 in [0.04]:#, 0.05, 0.01]:
                             sl_limit = v4
                             print(str(v3) + '  ' + str(v4))
-                            for idx in range(num_rows - 150, -1, -1):
+                            for idx in range(num_rows - 10000, -1, -1):
                                 anastasia(s, symbol, df, idx, sl_tp_ratio, sl_limit, sl_low_limit)
                                 agripina(s, symbol, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp_ratio, sl_limit, sl_low_limit)
                             op = Oportunities_sim.objects.get(symbol_id=s.pk)
