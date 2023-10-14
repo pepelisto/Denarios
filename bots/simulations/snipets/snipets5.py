@@ -12,22 +12,24 @@ star_date = datetime(2023, 1, 1)
 end_date = datetime(2023, 9, 30)
 
 result = Closed_position_sim.objects.values(
-     # 'symbol__symbol',
-     # 'type',#, 'tp_sl_ratio', 'sl_limit' 'rsi_open', 'stoch_open',
+    # 'symbol__symbol',
+       'type',#, 'tp_sl_ratio', 'sl_limit' 'rsi_open', 'stoch_open',
      'simulation',
      'tp_sl_ratio', 'sl_limit', 'sl_low_limit',
       # 'rsi_open',# 'stoch_open',
      # 'simulation',
 ).filter(close_date__range=(star_date, end_date),
-         # simulation=15,
+          simulation=500,
          #  tp_sl_ratio=3, sl_limit=0.04, sl_low_limit=0.015,
          # type='SELL',
          ).annotate(
     positions=Count('id'),
     pnl_total=Sum('profit'),
-    positive_pnl_count=Count(Case(When(profit__gt=0, then=1))),
-    negative_pnl_count=Count(Case(When(profit__lt=0, then=1))),
-    pnl_average=Avg('profit'),
+    max_pnl=Max('profit'),
+    min_pnl=Min('profit'),
+    pos_pnl_=Count(Case(When(profit__gt=0, then=1))),
+    neg_pnl=Count(Case(When(profit__lt=0, then=1))),
+    pnl_av=Avg('profit'),
     total_fee=Sum('fee'),
     avg_duration=ExpressionWrapper(
         Avg(

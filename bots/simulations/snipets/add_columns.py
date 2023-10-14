@@ -10,7 +10,7 @@ django.setup()
 from app.models import *
 
 # Load your dataset into a Pandas DataFrame (replace 'your_dataset.csv' with your actual file path)
-path = "../samples/USDT/2023_60m/"
+path = "../samples/USDT/2023_5m/"
 symbols = Symbol.objects.filter(find_in_api=True)
 for s in symbols:
     print("simulando " + str(s.symbol))
@@ -23,17 +23,16 @@ for s in symbols:
     # Reverse the order of the DataFrame
     df = df[::-1].reset_index(drop=True)
 
-    # Calculate RSI
-    rsi = ta.momentum.RSIIndicator(df['Close'], window=56)
-    df['rsi_56'] = rsi.rsi()
+    # Calculate Stochastic RSI
+    stoch_rsi = ta.momentum.StochRSIIndicator(df['Close'])
+    df['stoch_rsi_k'] = stoch_rsi.stochrsi_k()
+    df['stoch_rsi_d'] = stoch_rsi.stochrsi_d()
 
-    # # Calculate RSI
-    # rsi = ta.momentum.RSIIndicator(df['Close'], window=112)
-    # df['rsi_112'] = rsi.rsi()
-    #
-    # # Calculate RSI
-    # rsi = ta.momentum.RSIIndicator(df['Close'], window=224)
-    # df['rsi_224'] = rsi.rsi()
+    # Calculate 50-period EMA
+    df['ema_50'] = ta.trend.EMAIndicator(df['Close'], window=50).ema_indicator()
+
+    # Calculate 100-period EMA
+    df['ema_100'] = ta.trend.EMAIndicator(df['Close'], window=100).ema_indicator()
 
     df = df[::-1].reset_index(drop=True)
 

@@ -72,7 +72,7 @@ def close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, clos
         tp_sl_ratio=sl_tp_ratio,
         sl_limit=sl_limit,
         sl_low_limit=sl_low_limit,
-        simulation=15001,
+        simulation=3,
     )
     Open_position_sim.objects.get(symbol_id=s.pk).delete()
     op = Oportunities_sim.objects.get(symbol_id=s.pk)
@@ -167,12 +167,12 @@ def calculate_stop_loss_factor(op, df, idx):
     sl_price = None
     sl_price_2 = None
     if op.type == 'BUY':
-        for i in range(0, 10):
+        for i in range(0, 20):
             min_value = df.loc[idx + i, 'Low']
             if sl_price is None or min_value < sl_price:
                 sl_price = min_value
         found = False
-        starting = 10
+        starting = 20
         while not found:
             for i in range(starting, starting + 5):
                 min_value_2 = df.loc[idx + i, 'Low']
@@ -185,14 +185,14 @@ def calculate_stop_loss_factor(op, df, idx):
                 found = True
             starting += 5
     else:
-        for i in range(0, 10):
+        for i in range(0, 20):
             min_value = df.loc[idx + i, 'High']
             if sl_price is None or min_value > sl_price:
                 sl_price = min_value
             found = False
-            starting = 10
+            starting = 20
             while not found:
-                for i in range(starting, starting + 5):
+                for i in range(starting, starting + 3):
                     min_value_2 = df.loc[idx + i, 'High']
                     if sl_price_2 is None or min_value_2 > sl_price_2:
                         sl_price_2 = min_value_2
@@ -201,7 +201,7 @@ def calculate_stop_loss_factor(op, df, idx):
                     sl_price_2 = None
                 else:
                     found = True
-                starting += 5
+                starting += 3
     return sl_price
 
 def agripina(s, symbol, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp_ratio, sl_limit, sl_low_limit):
@@ -260,14 +260,13 @@ def agripina(s, symbol, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp
             if sl_factor > sl_limit:
                 sl_price = entry_price_ * (1 + sl_limit)
             elif sl_factor < sl_low_limit:
-                # sl_price = entry_price_ * (1 + sl_low_limit)
                 update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
                 return
         create_position(symbol_, type_, entry_price_, quantity_, open_date_, stoch_, rsi_, sl_price, sl_tp_ratio)
         update_opportunities(op, type='OPEN')
 
 def simulator():
-    path = "samples/USDT/2023_15m/"
+    path = "samples/USDT/2023_3m/"
     symbols = Symbol.objects.filter(find_in_api=True)
     for s in symbols:
         print("simulando " + str(s.symbol))
@@ -283,12 +282,12 @@ def simulator():
                 rsi_sell = 50 - v2
                 for v3 in [3]:
                     sl_tp_ratio = v3
-                    for v5 in [0.015]:
+                    for v5 in [0.005]:
                         sl_low_limit = v5
                         for v4 in [0.04]:
                             sl_limit = v4
                             print(str(v3) + '  ' + str(v4))
-                            for idx in range(num_rows - 150, -1, -1):
+                            for idx in range(num_rows - 100000, -1, -1):
                                 anastasia(s, symbol, df, idx, sl_tp_ratio, sl_limit, sl_low_limit)
                                 agripina(s, symbol, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp_ratio, sl_limit, sl_low_limit)
                             op = Oportunities_sim.objects.get(symbol_id=s.pk)
