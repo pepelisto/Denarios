@@ -73,14 +73,14 @@ def close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, clos
         sl_limit=sl_limit,
         sl_low_limit=sl_low_limit,
         simulation=4,
-        sim_info='desideria3 con histograma confirmation, sin bajar/subir sobre 30 o 70',
+        sim_info='desideria4 con histograma confirmation, hasta rsi stockastic opuesto o SL',
         ratr=+1,
     )
     Open_position_sim.objects.get(symbol_id=s.pk).delete()
     op = Oportunities_sim.objects.get(symbol_id=s.pk)
     update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
 
-def anastasia(s, df, idx, sl_tp_ratio, sl_limit, sl_low_limit):
+def anastasia(s, df, idx, sl_tp_ratio, sl_limit, sl_low_limit, rsi_buy_exit, rsi_sell_exit):
     try:
         po = Open_position_sim.objects.get(symbol_id=s.pk)
     except:
@@ -89,6 +89,7 @@ def anastasia(s, df, idx, sl_tp_ratio, sl_limit, sl_low_limit):
     close = df.loc[idx, 'Close']
     high = df.loc[idx, 'High']
     low = df.loc[idx, 'Low']
+    rsi = df.loc[idx, 'stoch_rsi_k']
     close_date_ = df.loc[idx, 'timestamp']
     sl_p = po.sl_price
     tp_period = False
@@ -96,7 +97,7 @@ def anastasia(s, df, idx, sl_tp_ratio, sl_limit, sl_low_limit):
     period = po.ratr
     if type_ == 'BUY':
         tp_p = po.entry_price * (1 + 0.0009)
-        if close >= tp_p and period == 1:
+        if close >= tp_p and rsi > rsi_buy_exit:
             tp_period = True
         if low <= sl_p:
             sl_period = True
@@ -115,7 +116,7 @@ def anastasia(s, df, idx, sl_tp_ratio, sl_limit, sl_low_limit):
             else:
                 close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='SL')
                 return
-        elif close <= tp_p and period == 1:
+        elif close <= tp_p and rsi > rsi_buy_exit:
             close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='SL', exit_price=close)
             return
         else:
@@ -123,7 +124,7 @@ def anastasia(s, df, idx, sl_tp_ratio, sl_limit, sl_low_limit):
             po.save()
     else:
         tp_p = po.entry_price * (1 - 0.0009)
-        if close <= tp_p and period == 1:
+        if close <= tp_p and rsi < rsi_sell_exit:
             tp_period = True
         if high >= sl_p:
             sl_period = True
@@ -142,56 +143,13 @@ def anastasia(s, df, idx, sl_tp_ratio, sl_limit, sl_low_limit):
             else:
                 close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='SL')
                 return
-        elif close >= tp_p and period == 1:
+        elif close >= tp_p and rsi < rsi_sell_exit:
             close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='SL', exit_price=close)
             return
         else:
             po.ratr += 1
             po.save()
 
-def calculate_swing_low(df, idx):
-    swing_low = None
-    swing_low_2 = None
-    for i in range(0, 10):
-        min_value = df.loc[idx + i, 'Low']
-        if swing_low is None or min_value < swing_low:
-            swing_low = min_value
-    found = False
-    starting = 10
-    while not found:
-        for i in range(starting, starting + 5):
-            min_value_2 = df.loc[idx + i, 'Low']
-            if swing_low_2 is None or min_value_2 < swing_low_2:
-                swing_low_2 = min_value_2
-        if swing_low_2 < swing_low:
-            swing_low = swing_low_2
-            swing_low_2 = None
-        else:
-            found = True
-        starting += 5
-    return swing_low
-
-def calculate_swing_high(df, idx):
-    swing_high = None
-    swing_high_2 = None
-    for i in range(0, 10):
-        min_value = df.loc[idx + i, 'High']
-        if swing_high is None or min_value > swing_high:
-            swing_high = min_value
-        found = False
-        starting = 10
-        while not found:
-            for i in range(starting, starting + 5):
-                min_value_2 = df.loc[idx + i, 'High']
-                if swing_high_2 is None or min_value_2 > swing_high_2:
-                    swing_high_2 = min_value_2
-            if swing_high_2 > swing_high:
-                swing_high = swing_high_2
-                swing_high_2 = None
-            else:
-                found = True
-            starting += 5
-    return swing_high
 
 def agripina(s, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp_ratio, sl_limit, sl_low_limit):
     op = Oportunities_sim.objects.get(symbol_id=s.pk)
@@ -245,7 +203,7 @@ def agripina(s, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp_ratio, 
         update_opportunities(op, type='OPEN')
 
 def simulator():
-    path = "samples/USDT/2023_4h/"
+    path = "../samples/USDT/2023_4h/"
     symbols = Symbol.objects.filter(find_in_api=True)
     for s in symbols:
         print("simulando " + str(s.symbol))
@@ -260,14 +218,15 @@ def simulator():
             rsi_sell = 0.8
             sl_tp_ratio = 3
             sl_low_limit = 0.025
-            sl_limit = 0.01
-            for idx in range(num_rows - 6000, -1, -1):
-                anastasia(s, df, idx, sl_tp_ratio, sl_limit, sl_low_limit)
-                agripina(s, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp_ratio, sl_limit, sl_low_limit)
-            op = Oportunities_sim.objects.get(symbol_id=s.pk)
-            update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
-            try:
-                Open_position_sim.objects.get(symbol_id=s.pk).delete()
-            except:
-                pass
+            for v in [0.5]:
+                sl_limit = v
+                for idx in range(num_rows - 150, -1, -1):
+                    anastasia(s, df, idx, sl_tp_ratio, sl_limit, sl_low_limit, rsi_sell, rsi_buy)
+                    agripina(s, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp_ratio, sl_limit, sl_low_limit)
+                op = Oportunities_sim.objects.get(symbol_id=s.pk)
+                update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
+                try:
+                    Open_position_sim.objects.get(symbol_id=s.pk).delete()
+                except:
+                    pass
 simulator()

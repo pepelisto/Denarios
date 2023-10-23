@@ -8,15 +8,15 @@ settings.configure(DATABASES=DATABASES, INSTALLED_APPS=INSTALLED_APPS)
 django.setup()
 from app.models import *
 
-star_date = datetime(2022, 11, 1)
+star_date = datetime(2021, 1, 1)
 end_date = datetime(2023, 10, 30)
 
 result = Closed_position_sim.objects.values(
       # 'symbol__symbol',
-      'type',
-    'simulation', 'tp_sl_ratio', 'sl_low_limit', 'sl_limit'
+      # 'type',
+    'simulation', 'tp_sl_ratio', 'sl_low_limit', 'sl_limit', 'ratr'
         ).filter(close_date__range=(star_date, end_date),
-                 simulation=4  #, tp_sl_ratio=3, sl_limit=0.04, sl_low_limit=0.015
+                 # simulation=4  #, tp_sl_ratio=3, sl_limit=0.04, sl_low_limit=0.015
                  ).annotate(
             positions=Count('id'),
             pnl_total=Sum('profit'),
@@ -44,7 +44,7 @@ for e in result:
     # Define the conditions to retrieve positions for the current simulation
     conditions = {
          # 'symbol__symbol': e['symbol__symbol'],
-         'type': e['type'],
+        'type': e['type'],
         'simulation': e['simulation'],
         'tp_sl_ratio': e['tp_sl_ratio'],
         'sl_low_limit': e['sl_low_limit'],
@@ -108,8 +108,8 @@ for e in result:
     weekly_win_rate = weekly_positive_count / total_weeks if total_weeks > 0 else 0
 
     # Update the 'e' dictionary with calculated values
-    e['max_pnl_negatives'] = max_pnl_negatives
-    e['max_pnl_positives'] = max_pnl_positives
+    e['max_pnl_neg'] = max_pnl_negatives
+    e['max_pnl_pos'] = max_pnl_positives
     e['max_pnl_period'] = max_pnl_period
     e['min_pnl_period'] = min_pnl_period
     e['weekly_win_rate'] = weekly_win_rate

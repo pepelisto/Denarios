@@ -1,4 +1,4 @@
-from functions.Agripina import Agripina
+from bots.A_A_invertido.functions.Agripina import Agripina
 import time
 import datetime
 

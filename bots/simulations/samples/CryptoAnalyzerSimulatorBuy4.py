@@ -32,10 +32,10 @@ class CryptoAnalyzer:
         if df is None:
             return None
 
-        # Calculate Stochastic Oscillator
-        stoch_osc = ta.momentum.StochasticOscillator(df['high'], df['low'], df['close'], window=14, smooth_window=3)  # You can adjust the window and smooth_window as needed
-        df['stoch_osc_k'] = stoch_osc.stoch()
-        df['stoch_osc_d'] = stoch_osc.stoch_signal()
+        # # Calculate Stochastic Oscillator
+        # stoch_osc = ta.momentum.StochasticOscillator(df['high'], df['low'], df['close'], window=14, smooth_window=3)  # You can adjust the window and smooth_window as needed
+        # df['stoch_osc_k'] = stoch_osc.stoch()
+        # df['stoch_osc_d'] = stoch_osc.stoch_signal()
 
         # Calculate MACD
         macd = ta.trend.MACD(df['close'])
@@ -44,8 +44,13 @@ class CryptoAnalyzer:
         df['macd_histogram'] = macd.macd_diff()
 
         # Calculate RSI
-        rsi = ta.momentum.RSIIndicator(df['close'])
+        rsi = ta.momentum.RSIIndicator(df['close'], window=56)
         df['rsi'] = rsi.rsi()
+
+        # Calculate Stochastic RSI
+        stoch_rsi = ta.momentum.StochRSIIndicator(df['close'])
+        df['stoch_rsi_k'] = stoch_rsi.stochrsi_k()
+        df['stoch_rsi_d'] = stoch_rsi.stochrsi_d()
 
         return df
 
@@ -74,8 +79,8 @@ class CryptoAnalyzer:
                         'MACD Signal': last_row['macd_signal'],
                         'MACD n-1': last_last_row['macd'],
                         'MACD n-1 Signal': last_last_row['macd_signal'],
-                        'St k': last_row['stoch_osc_k'],
-                        'St d': last_row['stoch_osc_d'],
+                        'St k': last_row['stoch_rsi_k'],
+                        'St d': last_row['stoch_rsi_d'],
                         'RSI': last_row['rsi'],
                     })
             except:

@@ -19,7 +19,7 @@ for i in range(1, 10):
          #'symbol__symbol', 'type'#
           'simulation',
          'tp_sl_ratio', 'sl_limit', 'sl_low_limit'
-    ).filter(simulation=5, close_date__range=(current_date, end_date_window)).annotate(
+    ).filter(simulation=15, close_date__range=(current_date, end_date_window)).annotate(
         positions=Count('id'),
         pnl_total=Sum('profit'),
         positive_pnl_count=Count(Case(When(profit__gt=0, then=1))),

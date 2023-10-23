@@ -48,8 +48,8 @@ def close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, clos
     else:
         delta = -((exit_price / po.entry_price) - 1)
     quantity_ = round(po.quantity * (1 + delta), 2)
-    fee_entry = round(po.quantity * 0.00036, 5)
-    fee_exit = round(quantity_ * 0.00036, 5)
+    fee_entry = round(po.quantity * 0.00045, 5)
+    fee_exit = round(quantity_ * 0.00045, 5)
     total_fee = round(fee_exit + fee_entry, 4)
     profit_ = round(po.quantity * delta - total_fee, 3)
     roe_ = round((profit_/po.quantity)*100, 1)
@@ -72,8 +72,8 @@ def close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, clos
         tp_sl_ratio=sl_tp_ratio,
         sl_limit=sl_limit,
         sl_low_limit=sl_low_limit,
-        simulation=40,
-        sim_info='sin alteraciones de SL',
+        simulation=4,
+        sim_info='',
     )
     Open_position_sim.objects.get(symbol_id=s.pk).delete()
     op = Oportunities_sim.objects.get(symbol_id=s.pk)
@@ -115,18 +115,18 @@ def anastasia(s, symbol, df, idx, sl_tp_ratio, sl_limit, sl_low_limit):
                 return
 
         # if sl_tp_ratio >= 1:
-        #     if sl_p < po.entry_price + po.entry_price * 0.00036 * 2:
+        #     if sl_p < po.entry_price + po.entry_price * 0.00045 * 2:
         #         factor = (po.tp_price - po.entry_price) / 3
         #         aumento = (high - po.entry_price)
         #         if aumento > factor:
-        #             po.sl_price = po.entry_price + po.entry_price * 0.00036 * 2
+        #             po.sl_price = po.entry_price + po.entry_price * 0.00045 * 2
         #             po.save()
         #
-        #     elif sl_p == po.entry_price + po.entry_price * 0.00036 * 2:
+        #     elif sl_p == po.entry_price + po.entry_price * 0.00045 * 2:
         #         factor = (po.tp_price - po.entry_price) / 3
         #         aumento = (high - po.entry_price)
         #         if aumento > factor * 2:
-        #             po.sl_price = po.entry_price + po.entry_price * 0.00036 * 2 + factor
+        #             po.sl_price = po.entry_price + po.entry_price * 0.00045 * 2 + factor
         #             po.save()
 
     else:
@@ -150,18 +150,18 @@ def anastasia(s, symbol, df, idx, sl_tp_ratio, sl_limit, sl_low_limit):
                 close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='SL')
                 return
         # if sl_tp_ratio >= 1:
-        #     if sl_p > po.entry_price - po.entry_price * 0.00036 * 2:
+        #     if sl_p > po.entry_price - po.entry_price * 0.00045 * 2:
         #         factor = (po.tp_price - po.entry_price) / 3
         #         aumento = (low - po.entry_price)
         #         if aumento < factor:
-        #             po.sl_price = po.entry_price - po.entry_price * 0.00036 * 2
+        #             po.sl_price = po.entry_price - po.entry_price * 0.00045 * 2
         #             po.save()
         #
-        #     elif sl_p == po.entry_price - po.entry_price * 0.00036 * 2:
+        #     elif sl_p == po.entry_price - po.entry_price * 0.00045 * 2:
         #         factor = (po.tp_price - po.entry_price) / 3
         #         aumento = (low - po.entry_price)
         #         if aumento < factor * 2:
-        #             po.sl_price = po.entry_price - po.entry_price * 0.00036 * 2 + factor
+        #             po.sl_price = po.entry_price - po.entry_price * 0.00045 * 2 + factor
         #             po.save()
 
 def calculate_stop_loss_factor(op, df, idx):
@@ -274,18 +274,18 @@ def simulator():
         symbol = s.symbol
         csv_file_path = f"{path}{symbol}_simulation.csv"
         df = pd.read_csv(csv_file_path)
-        num_rows = min(len(df), 10000)
+        num_rows = min(len(df), 3000)
         for v1 in [0]:#quedo fijado en 80 y 20, pq la variacion no mostro impacto signifiactivo
             stoch_buy = round(20 - v1, 2)
             stoch_sell = round(80 + v1, 2)
             for v2 in [0]:#quedo fijado -10, pq es equivalente a ignorarlo.
                 rsi_buy = 50 + v2
                 rsi_sell = 50 - v2
-                for v3 in [1]:
+                for v3 in [1.5]:
                     sl_tp_ratio = v3
-                    for v5 in [0.005]:
+                    for v5 in [0.01]:
                         sl_low_limit = v5
-                        for v4 in [0.02]:
+                        for v4 in [0.015]:
                             sl_limit = v4
                             print(str(v3) + '  ' + str(v4))
                             for idx in range(num_rows - 150, -1, -1):

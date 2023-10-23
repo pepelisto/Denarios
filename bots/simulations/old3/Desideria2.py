@@ -72,7 +72,7 @@ def close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, clos
         tp_sl_ratio=sl_tp_ratio,
         sl_limit=sl_limit,
         sl_low_limit=sl_low_limit,
-        simulation=6099,
+        simulation=15999000,
     )
     Open_position_sim.objects.get(symbol_id=s.pk).delete()
     op = Oportunities_sim.objects.get(symbol_id=s.pk)
@@ -113,20 +113,20 @@ def anastasia(s, symbol, df, idx, sl_tp_ratio, sl_limit, sl_low_limit):
                 close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='SL')
                 return
 
-        # if sl_tp_ratio >= 1:
-        #     if sl_p < po.entry_price + po.entry_price * 0.00036 * 2:
-        #         factor = (po.tp_price - po.entry_price) / 3
-        #         aumento = (high - po.entry_price)
-        #         if aumento > factor:
-        #             po.sl_price = po.entry_price + po.entry_price * 0.00036 * 2
-        #             po.save()
-        #
-        #     elif sl_p == po.entry_price + po.entry_price * 0.00036 * 2:
-        #         factor = (po.tp_price - po.entry_price) / 3
-        #         aumento = (high - po.entry_price)
-        #         if aumento > factor * 2:
-        #             po.sl_price = po.entry_price + po.entry_price * 0.00036 * 2 + factor
-        #             po.save()
+        if sl_tp_ratio >= 1:
+             if sl_p < po.entry_price + po.entry_price * 0.00045 * 2:
+                 factor = (po.tp_price - po.entry_price) / 3
+                 aumento = (high - po.entry_price)
+                 if aumento > factor:
+                     po.sl_price = po.entry_price + po.entry_price * 0.00045 * 2
+                     po.save()
+
+             elif sl_p == po.entry_price + po.entry_price * 0.00045 * 2:
+                 factor = (po.tp_price - po.entry_price) / 3
+                 aumento = (high - po.entry_price)
+                 if aumento > factor * 2:
+                     po.sl_price = po.entry_price + po.entry_price * 0.00045 * 2 + factor
+                     po.save()
 
     else:
         if low <= tp_p:
@@ -148,20 +148,20 @@ def anastasia(s, symbol, df, idx, sl_tp_ratio, sl_limit, sl_low_limit):
             else:
                 close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='SL')
                 return
-        # if sl_tp_ratio >= 1:
-        #     if sl_p > po.entry_price - po.entry_price * 0.00036 * 2:
-        #         factor = (po.tp_price - po.entry_price) / 3
-        #         aumento = (low - po.entry_price)
-        #         if aumento < factor:
-        #             po.sl_price = po.entry_price - po.entry_price * 0.00036 * 2
-        #             po.save()
-        #
-        #     elif sl_p == po.entry_price - po.entry_price * 0.00036 * 2:
-        #         factor = (po.tp_price - po.entry_price) / 3
-        #         aumento = (low - po.entry_price)
-        #         if aumento < factor * 2:
-        #             po.sl_price = po.entry_price - po.entry_price * 0.00036 * 2 + factor
-        #             po.save()
+        if sl_tp_ratio >= 1:
+             if sl_p > po.entry_price - po.entry_price * 0.00045 * 2:
+                 factor = (po.tp_price - po.entry_price) / 3
+                 aumento = (low - po.entry_price)
+                 if aumento < factor:
+                     po.sl_price = po.entry_price - po.entry_price * 0.00045 * 2
+                     po.save()
+
+             elif sl_p == po.entry_price - po.entry_price * 0.00045 * 2:
+                 factor = (po.tp_price - po.entry_price) / 3
+                 aumento = (low - po.entry_price)
+                 if aumento < factor * 2:
+                     po.sl_price = po.entry_price - po.entry_price * 0.00045 * 2 + factor
+                     po.save()
 
 def calculate_swing_low(df, idx):
     swing_low = None
@@ -228,8 +228,8 @@ def agripina(s, symbol, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp
             # and df.loc[idx, 'MACD histogram'] < df.loc[idx + 1, 'MACD histogram'] < df.loc[idx + 2, 'MACD histogram'] \
                 if df.loc[idx, 'ema_100'] > df.loc[idx, 'ema_50']\
                 and df.loc[idx, 'ema_100'] - df.loc[idx + 10, 'ema_100'] < 0\
-                and df.loc[idx, 'ema_50'] - df.loc[idx + 10, 'ema_50'] < 0 \
-                and df.loc[idx, 'Close'] < df.loc[idx, 'ema_50']:   #esto no tiene mucha logica
+                and df.loc[idx, 'ema_50'] - df.loc[idx + 10, 'ema_50'] < 0:
+             #   and df.loc[idx, 'Close'] < df.loc[idx, 'ema_50']:            #esto no tiene mucha logica-----------------------------
                     update_opportunities(op, macd=True, rsi=True)
                 else:
                     update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
@@ -239,8 +239,8 @@ def agripina(s, symbol, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp
         if srsik >= stoch_buy:
                 if df.loc[idx, 'ema_100'] < df.loc[idx, 'ema_50'] \
                 and df.loc[idx, 'ema_100'] - df.loc[idx + 10, 'ema_100'] > 0 \
-                and df.loc[idx, 'ema_50'] - df.loc[idx + 10, 'ema_50'] > 0 \
-                and df.loc[idx, 'Close'] > df.loc[idx, 'ema_50']:
+                and df.loc[idx, 'ema_50'] - df.loc[idx + 10, 'ema_50'] > 0:
+             #   and df.loc[idx, 'Close'] > df.loc[idx, 'ema_50']:
                     update_opportunities(op, macd=True, rsi=True)
                 else:
                     update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
@@ -296,7 +296,7 @@ def agripina(s, symbol, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp
         update_opportunities(op, type='OPEN')
 
 def simulator():
-    path = "samples/USDT/2023_15m/"
+    path = "../samples/USDT/2023_15m/"
     symbols = Symbol.objects.filter(find_in_api=True)
     for s in symbols:
         print("simulando " + str(s.symbol))
@@ -310,14 +310,14 @@ def simulator():
             for v2 in [-50]:#quedo fijado -10, pq es equivalente a ignorarlo.
                 rsi_buy = 50 + v2
                 rsi_sell = 50 - v2
-                for v3 in [3, 2]:
+                for v3 in [2]:
                     sl_tp_ratio = v3
-                    for v5 in [0.03, 0.02]:
+                    for v5 in [0.02]:
                         sl_low_limit = v5
                         for v4 in [0.04]:
                             sl_limit = v4
                             print(str(v3) + '  ' + str(v4))
-                            for idx in range(num_rows - 1000, -1, -1):
+                            for idx in range(num_rows - 2000, -1, -1):
                                 anastasia(s, symbol, df, idx, sl_tp_ratio, sl_limit, sl_low_limit)
                                 agripina(s, symbol, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp_ratio, sl_limit, sl_low_limit)
                             op = Oportunities_sim.objects.get(symbol_id=s.pk)

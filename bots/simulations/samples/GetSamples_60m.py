@@ -35,5 +35,5 @@ for s in symbols:
 
     # Concatenate the list of data frames into one
     combined_data_frame = pd.concat(data_frames_list, ignore_index=True)
-    combined_data_frame.to_csv(f"USDT/2023_4h/{s}_simulation.csv", index=False)
+    combined_data_frame.to_csv(f"USDT2/2023_4h/{s}_simulation.csv", index=False)
     print(combined_data_frame)

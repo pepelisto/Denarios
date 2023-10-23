@@ -9,7 +9,7 @@ from app.models import *
 
 
 result = Closed_position_sim.objects.values(
-    'symbol__symbol', 'type', 'srsi_open', 'rsi_open',
+    'symbol__symbol',# 'type',
 ).annotate(
     positions=Count('id'),
     pnl_total=Sum('profit'),
