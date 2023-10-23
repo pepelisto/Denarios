@@ -1,7 +1,7 @@
 from django.conf import settings
 import django
-from bots.A_A.functions.CryptoAnalyzer import CryptoAnalyzer
-from bots.A_A.functions.Take_position import BinanceTrader
+from CryptoAnalyzer import CryptoAnalyzer
+from Take_position import BinanceTrader
 import time
 import datetime
 from django.db import transaction, DatabaseError
@@ -228,7 +228,7 @@ class Agripina:
             usdt_size = s.q
             sym = s.symbol.symbol
             profit_factor = 1 + sl_factor
-            loss_factor = 1 + sl_factor * (-1.05) * sl_tp_ratio
+            loss_factor = 1 + sl_factor * (-1) * sl_tp_ratio
             entry_price, stop_loss, take_profit, leverage, stopPrice_precision, sl_order_id, position_id \
                 = self.open_position(sym, type_, loss_factor, profit_factor, usdt_size)
             self.retry_on_database_error(self.create_position, symbol_, type_, entry_price, quantity_, open_date_, stoch_,
