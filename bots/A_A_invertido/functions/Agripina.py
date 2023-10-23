@@ -82,8 +82,8 @@ class Agripina:
         position_info = trader.get_position_info(symbol, position_id=position_id)
         entry_price = float(position_info['entryPrice'])
 
-        take_profit = round(entry_price * stop_loss_factor, stopPrice_precision)
-        stop_loss = round(entry_price * take_profit_factor, stopPrice_precision)
+        take_profit = round(entry_price * take_profit_factor, stopPrice_precision)
+        stop_loss = round(entry_price * stop_loss_factor, stopPrice_precision)
 
         # Place take profit order with retry
         take_profit, tp_order_id = self.place_order_with_retry(trader, symbol, side, take_profit, 'TAKE_PROFIT_MARKET', position_id, stopPrice_precision, take_profit_factor)
@@ -227,8 +227,8 @@ class Agripina:
             sl_factor = (sl_price / entry_price_) - 1
             usdt_size = s.q
             sym = s.symbol.symbol
-            profit_factor = 1 + sl_factor * (-1.05)
-            loss_factor = 1 + sl_factor * (1.05) * sl_tp_ratio
+            profit_factor = 1 + sl_factor
+            loss_factor = 1 + sl_factor * (-1.05) * sl_tp_ratio
             entry_price, stop_loss, take_profit, leverage, stopPrice_precision, sl_order_id, position_id \
                 = self.open_position(sym, type_, loss_factor, profit_factor, usdt_size)
             self.retry_on_database_error(self.create_position, symbol_, type_, entry_price, quantity_, open_date_, stoch_,
