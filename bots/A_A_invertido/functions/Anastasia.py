@@ -1,7 +1,7 @@
 from django.conf import settings
 import django
-from CryptoAnalyzer import CryptoAnalyzer
-from Take_position import BinanceTrader
+from bots.A_A_invertido.functions.CryptoAnalyzer import CryptoAnalyzer
+from bots.A_A_invertido.functions.Take_position import BinanceTrader
 import time
 import datetime
 from django.db import transaction, DatabaseError

@@ -1,4 +1,4 @@
-from bots.A_A.functions.Anastasia import Anastasia
+from bots.A_A_invertido.functions.Anastasia import Anastasia
 import time
 import datetime
 
