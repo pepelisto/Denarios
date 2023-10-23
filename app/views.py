@@ -67,7 +67,7 @@ def analisis(request, year=None, month=None, symbol=None):
         'symbol__symbol', 'simulation', 'tp_sl_ratio', 'sl_low_limit', 'sl_limit', 'type' , 'rsi_open',# 'stoch_open'
     ).filter(
           close_date__range=(start_date, end_date), #tp_sl_ratio=3, sl_low_limit=0.015, sl_limit=0.04,
-          # simulation=60,
+          simulation=4,
        #   symbol__symbol='MATICUSDT',
 
     ).annotate(

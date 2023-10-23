@@ -10,8 +10,8 @@ from app.models import *
 
 
 # Define the start and end dates
-start_date = datetime(2022, 6, 7)
-end_date = datetime(2023, 9, 8)
+start_date = datetime(2022, 11, 1)
+end_date = datetime(2023, 10, 30)
 
 # Define the time window (in days) for analysis
 time_lapse = 7  # You can change this value to adjust the window

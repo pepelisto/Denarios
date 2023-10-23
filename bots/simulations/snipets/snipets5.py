@@ -8,19 +8,22 @@ settings.configure(DATABASES=DATABASES, INSTALLED_APPS=INSTALLED_APPS)
 django.setup()
 from app.models import *
 
-star_date = datetime(2023, 1, 1)
-end_date = datetime(2023, 9, 30)
+star_date = datetime(2020, 1, 1)
+end_date = datetime(2023, 10, 30)
 
 result = Closed_position_sim.objects.values(
-    # 'symbol__symbol',
-       'type',#, 'tp_sl_ratio', 'sl_limit' 'rsi_open', 'stoch_open',
+       # 'symbol__symbol',
+      'type',#, 'tp_sl_ratio', 'sl_limit' 'rsi_open', 'stoch_open',
      'simulation',
-     'tp_sl_ratio', 'sl_limit', 'sl_low_limit',
+     'tp_sl_ratio',
+    'sl_limit',# 'sl_low_limit',
       # 'rsi_open',# 'stoch_open',
      # 'simulation',
-).filter(close_date__range=(star_date, end_date),
-          simulation=500,
-         #  tp_sl_ratio=3, sl_limit=0.04, sl_low_limit=0.015,
+  ).filter(close_date__range=(star_date, end_date),
+          simulation=40,
+         #  tp_sl_ratio=3,
+         #   sl_limit=0.05,
+           #  sl_low_limit=0.015,
          # type='SELL',
          ).annotate(
     positions=Count('id'),
@@ -38,6 +41,24 @@ result = Closed_position_sim.objects.values(
         ),
         output_field=IntegerField()
     ),
+    avg_duration_positive_profit = ExpressionWrapper(
+        Avg(
+            Case(
+                When(profit__gt=0, then=(F('close_date') - F('open_date')) / 60000000),
+                output_field=IntegerField()
+            )
+        ),
+        output_field=IntegerField()
+    ),
+    avg_duration_negative_profit = ExpressionWrapper(
+        Avg(
+            Case(
+                When(profit__lt=0, then=(F('close_date') - F('open_date')) / 60000000),
+                output_field=IntegerField()
+            )
+        ),
+        output_field=IntegerField()
+    )
 ).order_by('pnl_total')
 
 # Now the result will contain the statistics calculated for each combination

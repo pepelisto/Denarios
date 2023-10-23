@@ -8,15 +8,15 @@ settings.configure(DATABASES=DATABASES, INSTALLED_APPS=INSTALLED_APPS)
 django.setup()
 from app.models import *
 
-star_date = datetime(2023, 1, 1)
-end_date = datetime(2023, 9, 30)
+star_date = datetime(2022, 11, 1)
+end_date = datetime(2023, 10, 30)
 
 result = Closed_position_sim.objects.values(
-     # 'symbol__symbol',
-     # 'type',
+      # 'symbol__symbol',
+      'type',
     'simulation', 'tp_sl_ratio', 'sl_low_limit', 'sl_limit'
-        ).filter(close_date__range=(star_date, end_date)
-                 # , simulation=6009, tp_sl_ratio=3, sl_limit=0.04, sl_low_limit=0.015
+        ).filter(close_date__range=(star_date, end_date),
+                 simulation=4  #, tp_sl_ratio=3, sl_limit=0.04, sl_low_limit=0.015
                  ).annotate(
             positions=Count('id'),
             pnl_total=Sum('profit'),
@@ -43,8 +43,8 @@ result = Closed_position_sim.objects.values(
 for e in result:
     # Define the conditions to retrieve positions for the current simulation
     conditions = {
-        # 'symbol__symbol': e['symbol__symbol'],
-        # 'type': e['type'],
+         # 'symbol__symbol': e['symbol__symbol'],
+         'type': e['type'],
         'simulation': e['simulation'],
         'tp_sl_ratio': e['tp_sl_ratio'],
         'sl_low_limit': e['sl_low_limit'],

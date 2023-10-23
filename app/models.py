@@ -119,6 +119,8 @@ class Closed_position_sim(models.Model):
     simulation = models.IntegerField(null=True, default=1)
     sl_low_limit = models.FloatField(null=True, default=None)
     ratr = models.FloatField(null=True, default=None)
+    sim_info = models.CharField(null=True, default=None, max_length=100)
+
     def __str__(self):
         return self.type + ' - ' + str(self.profit)
 

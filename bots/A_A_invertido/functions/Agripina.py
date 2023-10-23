@@ -227,8 +227,8 @@ class Agripina:
             sl_factor = (sl_price / entry_price_) - 1
             usdt_size = s.q
             sym = s.symbol.symbol
-            profit_factor = 1 + sl_factor * (-1.05) * sl_tp_ratio
-            loss_factor = 1 + sl_factor * (1.05)
+            profit_factor = 1 + sl_factor * (-1.05)
+            loss_factor = 1 + sl_factor * (1.05) * sl_tp_ratio
             entry_price, stop_loss, take_profit, leverage, stopPrice_precision, sl_order_id, position_id \
                 = self.open_position(sym, type_, loss_factor, profit_factor, usdt_size)
             self.retry_on_database_error(self.create_position, symbol_, type_, entry_price, quantity_, open_date_, stoch_,
