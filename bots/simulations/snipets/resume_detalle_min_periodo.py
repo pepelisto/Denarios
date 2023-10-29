@@ -8,7 +8,7 @@ settings.configure(DATABASES=DATABASES, INSTALLED_APPS=INSTALLED_APPS)
 django.setup()
 from app.models import *
 
-star_date = datetime(2020, 1, 1)
+star_date = datetime(2023, 1, 1)
 end_date = datetime(2023, 10, 30)
 
 result = Closed_position_sim.objects.values(
