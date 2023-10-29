@@ -1,6 +1,6 @@
 Denarios/.env
 venv
-bots/simulations/samples/USDT
+bots/simulations/samples
 db.sqlite3
 Denarios/bots/simulations
 .env
