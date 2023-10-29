@@ -74,7 +74,7 @@ def close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, fact
         sl_limit=sl_limit,
         sl_low_limit=sl_low_limit,
         ratr=factor_ajuste,
-        simulation=68,
+        simulation=699,
         sim_info='',
     )
     Open_position_sim.objects.get(symbol_id=s.pk).delete()
@@ -267,25 +267,25 @@ def agripina(s, symbol, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp
         update_opportunities(op, type='OPEN')
 
 def simulator():
-    path = "samples/USDT2/2023_60m/"
+    path = "samples/USDT2/2023_4h/"
     symbols = Symbol.objects.filter(find_in_api=True)
     for s in symbols:
         print("simulando " + str(s.symbol))
         symbol = s.symbol
         csv_file_path = f"{path}{symbol}_simulation_with_indicators.csv"
         df = pd.read_csv(csv_file_path)
-        num_rows = min(len(df), 3000)
+        num_rows = min(len(df), 8600)
         for v1 in [0]:#quedo fijado en 80 y 20, pq la variacion no mostro impacto signifiactivo
             stoch_buy = round(0.2 - v1, 2)
             stoch_sell = round(0.8 + v1, 2)
             for v2 in [0]:#quedo fijado -10, pq es equivalente a ignorarlo.
                 rsi_buy = 50 + v2
                 rsi_sell = 50 - v2
-                for v3 in [2]:
+                for v3 in [5]:
                     sl_tp_ratio = v3
                     for v5 in [0.01]:
                         sl_low_limit = v5
-                        for v4 in [0.01]:
+                        for v4 in [0.02]:
                             sl_limit = v4
                             for v5 in [0.01]:
                                 factor_ajuste = v5

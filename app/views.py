@@ -64,10 +64,13 @@ def analisis(request, year=None, month=None, symbol=None):
             end_date = datetime(2023, 12, 31)
 
     result = Closed_position_sim.objects.values(
-        'symbol__symbol', 'simulation', 'tp_sl_ratio', 'sl_low_limit', 'sl_limit', 'type' , 'rsi_open',# 'stoch_open'
+        'symbol__symbol', 'simulation', 'tp_sl_ratio', 'sl_low_limit', 'sl_limit',
+        # 'type' , 'rsi_open',# 'stoch_open'
     ).filter(
-          close_date__range=(start_date, end_date), #tp_sl_ratio=3, sl_low_limit=0.015, sl_limit=0.04,
-          simulation=4,
+          close_date__range=(start_date, end_date),
+         tp_sl_ratio=6,
+        # sl_low_limit=0.015, sl_limit=0.04,
+          simulation=699,
        #   symbol__symbol='MATICUSDT',
 
     ).annotate(

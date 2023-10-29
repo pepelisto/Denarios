@@ -8,7 +8,7 @@ settings.configure(DATABASES=DATABASES, INSTALLED_APPS=INSTALLED_APPS)
 django.setup()
 from app.models import *
 
-star_date = datetime(2021, 1, 1)
+star_date = datetime(2020, 1, 1)
 end_date = datetime(2023, 10, 30)
 
 result = Closed_position_sim.objects.values(
@@ -44,7 +44,8 @@ for e in result:
     # Define the conditions to retrieve positions for the current simulation
     conditions = {
          # 'symbol__symbol': e['symbol__symbol'],
-        'type': e['type'],
+        # 'type': e['type'],
+        'ratr': e['ratr'],
         'simulation': e['simulation'],
         'tp_sl_ratio': e['tp_sl_ratio'],
         'sl_low_limit': e['sl_low_limit'],

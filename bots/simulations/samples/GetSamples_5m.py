@@ -9,8 +9,8 @@ settings.configure(DATABASES=DATABASES, INSTALLED_APPS=INSTALLED_APPS)
 django.setup()
 from app.models import *
 
-interval = '3m'
-m = 3
+interval = '5m'
+m = 5
 candles = 1100
 limit = 400 + candles
 periodos = 120
@@ -35,5 +35,5 @@ for s in symbols:
 
     # Concatenate the list of data frames into one
     combined_data_frame = pd.concat(data_frames_list, ignore_index=True)
-    combined_data_frame.to_csv(f"samples/USDT/2023_3m/{s}_simulation.csv", index=False)
+    combined_data_frame.to_csv(f"USDT2/2023_5m/{s}_simulation.csv", index=False)
     print("simbol pronto:  " + str(sy))

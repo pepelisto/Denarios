@@ -13,9 +13,9 @@ interval = '15m'
 m = 15
 candles = 1100
 limit = 400 + candles
-periodos = 100
+periodos = 24
 
-symbols_queryset = Symbol.objects.filter(find_in_api=True)[18:]
+symbols_queryset = Symbol.objects.filter(find_in_api=True)
 symbols = [symbol.symbol for symbol in symbols_queryset]
 #
 # symbols = ['BTCUSDT']
@@ -35,5 +35,5 @@ for s in symbols:
 
     # Concatenate the list of data frames into one
     combined_data_frame = pd.concat(data_frames_list, ignore_index=True)
-    combined_data_frame.to_csv(f"USDT/2023_15m_2/{s}_simulation.csv", index=False)
+    combined_data_frame.to_csv(f"USDT2/2023_15m/{s}_simulation.csv", index=False)
     print(combined_data_frame)

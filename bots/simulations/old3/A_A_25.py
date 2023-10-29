@@ -279,7 +279,7 @@ this to try later on: close ...or the rsi stoch reached bellow 20 or some thing,
 """
 
 def simulator():
-    path = "samples/USDT2/2023_60m/"
+    path = "../samples/USDT2/2023_60m/"
     symbols = Symbol.objects.filter(find_in_api=True)
     for s in symbols:
         print("simulando " + str(s.symbol))
