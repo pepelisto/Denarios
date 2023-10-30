@@ -13,13 +13,13 @@ for s in symbols:
     symbol = s.symbol
     positives = 0
     pnl_suma = 0
-    for i in [7,8,9,10,11]:
+    for i in [1,2,3,4,5,6,7,8,9,10,11]:
         star_date = datetime(2023, i, 2)
         end_date = datetime(2023, i+1, 1)
         result = Closed_position_sim.objects.values('simulation', 'symbol__symbol').filter(
             symbol__symbol=symbol,
             close_date__range=(star_date, end_date),
-            simulation=6009,).\
+            simulation=4444,).\
             annotate(
                 pnl_total=Sum('profit'),
             ).order_by('pnl_total')

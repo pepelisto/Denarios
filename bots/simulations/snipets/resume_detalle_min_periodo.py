@@ -8,7 +8,7 @@ settings.configure(DATABASES=DATABASES, INSTALLED_APPS=INSTALLED_APPS)
 django.setup()
 from app.models import *
 
-star_date = datetime(2023, 1, 1)
+star_date = datetime(2022, 10, 1)
 end_date = datetime(2023, 10, 30)
 
 result = Closed_position_sim.objects.values(
@@ -16,7 +16,7 @@ result = Closed_position_sim.objects.values(
       # 'type',
     'simulation', 'tp_sl_ratio', 'sl_low_limit', 'sl_limit', 'ratr'
         ).filter(close_date__range=(star_date, end_date),
-                 # simulation=4  #, tp_sl_ratio=3, sl_limit=0.04, sl_low_limit=0.015
+                 # simulation=43  #, tp_sl_ratio=3, sl_limit=0.04, sl_low_limit=0.015
                  ).annotate(
             positions=Count('id'),
             pnl_total=Sum('profit'),
