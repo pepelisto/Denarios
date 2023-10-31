@@ -10,4 +10,4 @@ from app.models import *
 
 # Assuming you have imported the model Closed_position_sim
 # Closed_position_sim.objects.all().delete()
-Closed_position_sim.objects.filter(simulation=4444).delete()
+Closed_position_sim.objects.filter(ratr=0.03).delete()

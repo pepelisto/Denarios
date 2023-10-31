@@ -8,7 +8,7 @@ settings.configure(DATABASES=DATABASES, INSTALLED_APPS=INSTALLED_APPS)
 django.setup()
 from app.models import *
 
-star_date = datetime(2023, 3, 1)
+star_date = datetime(2022, 3, 1)
 end_date = datetime(2023, 10, 30)
 
 result = Closed_position_sim.objects.values(
@@ -22,7 +22,7 @@ result = Closed_position_sim.objects.values(
         # 'rsi_open', 'stoch_open',
      # 'simulation',
   ).filter(close_date__range=(star_date, end_date),
-            # simulation=4,
+            simulation=444408,
            # tp_sl_ratio=3,
            # sl_limit=0.02,
            # sl_low_limit=0.01,
