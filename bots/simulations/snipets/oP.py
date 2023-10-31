@@ -14,6 +14,7 @@ from app.models import *
 result = Optimum_parameter.objects.all()
 
 for entry in result:
-    print(entry)
-    entry.q = 50
-    entry.save()
+    Oportunities(
+        symbol=entry.symbol,
+        timeframe=240,
+    ).save()
