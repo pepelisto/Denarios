@@ -35,12 +35,12 @@ class CryptoAnalyzer:
             return None
 
         # Calculate Stochastic Oscillator
-        stoch_osc = ta.momentum.StochRSIIndicator(df['Close'])
+        stoch_osc = ta.momentum.StochRSIIndicator(df['close'])
         df['stoch_osc_k'] = stoch_osc.stochrsi_k()
         df['stoch_osc_d'] = stoch_osc.stochrsi_d()
 
         # Calculate MACD
-        macd = ta.trend.MACD(df['Close'], window_fast=6, window_slow=12, window_sign=4)
+        macd = ta.trend.MACD(df['close'], window_fast=6, window_slow=12, window_sign=4)
         df['macd_histogram'] = macd.macd_diff()
 
         # Calculate RSI

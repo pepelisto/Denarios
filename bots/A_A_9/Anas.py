@@ -12,6 +12,7 @@ def run_scheduled_pattern():
         print(f"Waiting for {remaining_time / 60} minutes until {next_start_time}")
         time.sleep(remaining_time)
         Anastasia(timeframe=240).traeder()
-        print("Executing your task.")
+        time.sleep(60)
+
 
 run_scheduled_pattern()
