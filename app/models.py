@@ -152,7 +152,7 @@ class Optimum_parameter(models.Model):
     max_accumulated_profit = models.FloatField(null=True, default=None)
     wins_in_a_row = models.IntegerField(null=True, default=None)
     losses_in_a_row = models.IntegerField(null=True, default=None)
-    factor_ajuste = models.IntegerField(null=True, default=None)
+    factor_ajuste = models.FloatField(null=True, default=None)
     class Meta:
         unique_together = ['symbol', 'type', 'criteria', 'timeframe']
     def __str__(self):

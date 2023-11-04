@@ -18,8 +18,7 @@ for i in range(0, 30):
           'simulation',
           'tp_sl_ratio', 'sl_limit', 'sl_low_limit', 'ratr',
           'simulation',
-    ).filter(Q(close_date__range=(star_date, end_date)) &
-        (Q(simulation=44055))).filter(symbol_id=i).annotate(
+    ).filter(close_date__range=(star_date, end_date), simulation=43).filter(symbol_id=i).annotate(
         positions=Count('id'),
         pnl_total=Sum('profit'),
         positive_pnl_count=Count(Case(When(profit__gt=0, then=1))),

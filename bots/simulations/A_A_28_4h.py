@@ -74,8 +74,8 @@ def close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, fact
         sl_limit=sl_limit,
         sl_low_limit=sl_low_limit,
         ratr=factor_ajuste,
-        simulation=44055,
-        sim_info='ultimate con mas stmbols',
+        simulation=44077,
+        sim_info='nuevos valores, aa28',
     )
     Open_position_sim.objects.get(symbol_id=s.pk).delete()
     op = Oportunities_sim.objects.get(symbol_id=s.pk)
@@ -286,19 +286,19 @@ def simulator():
         num_rows = min(len(df), 8405)
         csv_file_path5 = f"{path5}{symbol}_simulation.csv"
         df5 = pd.read_csv(csv_file_path5)
-        for v1 in [0.0]:#quedo fijado en 80 y 20, pq la variacion no mostro impacto signifiactivo
+        for v1 in [0]:#quedo fijado en 80 y 20, pq la variacion no mostro impacto signifiactivo
             stoch_buy = round(0.2 - v1, 2)
             stoch_sell = round(0.8 + v1, 2)
             for v2 in [0]:#quedo fijado -10, pq es equivalente a ignorarlo.
                 rsi_buy = 50 + v2
                 rsi_sell = 50 - v2
-                for v3 in [4,6,8]:
+                for v3 in [4, 6, 8]:
                     sl_tp_ratio = v3
                     for v5 in [0.01]:
                         sl_low_limit = v5
-                        for v4 in [0.02]:
+                        for v4 in [0.04, 0.1]:
                             sl_limit = v4
-                            for v5 in [0.02, 0.03]:
+                            for v5 in [0.015]:
                                 factor_ajuste = v5
                                 print(str(v3) + '  ' + str(v4))
                                 for idx in range(num_rows - 150, -1, -1):

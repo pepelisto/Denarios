@@ -257,7 +257,7 @@ def agripina(s, symbol, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp
             rsi_ = rsi_buy
             type_ = 'BUY'
             if abs(sl_factor) > sl_limit:
-                sl_price = entry_price_ * (1 - sl_low_limit)
+                sl_price = entry_price_ * (1 - sl_limit)
             else:
                 update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
                 return
@@ -267,7 +267,7 @@ def agripina(s, symbol, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp
             rsi_ = rsi_sell
             type_ = 'SELL'
             if sl_factor > sl_limit:
-                sl_price = entry_price_ * (1 + sl_low_limit)
+                sl_price = entry_price_ * (1 + sl_limit)
             else:
                 update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
                 return
