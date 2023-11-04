@@ -42,7 +42,7 @@ class Open_position(models.Model):
     tp_order_id = models.CharField(max_length=50, null=True, default=None)
     def __str__(self):
         return str(self.symbol) + ' - ' + self.type + ' - ' + str(self.alt_TP_SL) + ' - ' + str(self.timeframe) \
-            + ' -tp price ' + str(self.tp_price) + ' -sl price ' + str(self.sl_price)
+            + ' -tp price ' + str(self.tp_price) + ' -sl price ' + str(self.sl_price) + ' -sl price ' + str(self.alt_TP_SL)
 
 
 class Closed_position(models.Model):
