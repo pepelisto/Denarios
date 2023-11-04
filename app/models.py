@@ -154,7 +154,7 @@ class Optimum_parameter(models.Model):
     class Meta:
         unique_together = ['symbol', 'type', 'criteria', 'timeframe']
     def __str__(self):
-        return str(self.symbol) + ' - ' + str(self.timeframe) + ' - ' + str(self.pnl)
+        return str(self.symbol) + ' - ' + str(self.timeframe) + ' - ' + str(self.pnl) + ' - ' + str(self.q)
 class Simulations(models.Model):
     symbol = models.ForeignKey(Symbol, on_delete=models.CASCADE)
     types = (('SELL', 'SELL'), ('BUY', 'BUY'))

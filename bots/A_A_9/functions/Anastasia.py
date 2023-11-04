@@ -116,6 +116,8 @@ class Anastasia:
     def place_order_with_retry(self, trader, symbol, side, price, kind, stopPrice_precision):
         order_placed = False
         order = None
+        max_retries = 10
+        retries = 0
         while not order_placed:
             try:
                 data = trader.place_order_tp_sl(symbol, side, price=price, kind=kind)
@@ -131,6 +133,13 @@ class Anastasia:
                     else:
                         new_price = round(price + price * 0.0005, stopPrice_precision)
                         price = new_price
+
+                elif 'Timestamp for this request is outside of the recvWindow.' in error_message:
+                    print("delay on server timestamp and recwindow")
+                    retries += 1
+                    if retries == max_retries:
+                        print('error on seting ' + str(symbol) + ' adjust tp or sl, please check it')
+                        return
 
                 elif 'Time in Force (TIF) GTE can only be used with open positions or open orders' in error_message:
                     print("position closed before setting the SL order")
@@ -149,9 +158,9 @@ class Anastasia:
             return
         type_ = po.type
         close = df['close'].iloc[0]
-        high = df['high'].iloc[0]
-        low = df['low'].iloc[0]
-        close_date_ = df['timestamp'].iloc[0]
+        high = df['high'].iloc[1]
+        low = df['low'].iloc[1]
+        close_date_ = df['timestamp'].iloc[1]
         tp_p = po.tp_price
         sl_p = po.sl_price
         alteraciones = po.alt_TP_SL
