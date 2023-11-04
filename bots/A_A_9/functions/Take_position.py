@@ -327,3 +327,17 @@ class BinanceTrader:
         return response.json()
 
 
+    def get_min_notional(self, symbol):
+        endpoint = '/fapi/v1/exchangeInfo'
+        response = requests.get(f"{self.base_url}{endpoint}")
+        exchange_info = json.loads(response.text)
+
+        for symbol_info in exchange_info['symbols']:
+            if symbol_info['symbol'] == symbol:
+                for filter_info in symbol_info['filters']:
+                    if filter_info['filterType'] == 'PRICE_FILTER':
+                        min_notional = float(filter_info['minNotional'])
+                        return min_notional
+
+        raise ValueError(f"Symbol not found or minimum notional not specified: {symbol}")
+

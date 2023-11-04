@@ -57,7 +57,9 @@
                                 <tbody id="myTable">
                                     {% for r in lista %}
                                         <tr>
-                                            <td><a href="{% url 'app:analisis_symbol' year r.symbol__symbol %}" class="text-truncate text-dark align-middle" >{{ r.symbol__symbol }}</a></td>
+                                            <td>
+{#                                                <a href="{% url 'app:analisis_symbol' year r.symbol__symbol %}" class="text-truncate text-dark align-middle" >{{ r.symbol__symbol }}</a>#}
+                                            </td>
                                             <td><a class="text-truncate text-dark align-middle" >{{ r.type }}</a></td>
                                             <td><a class="text-truncate text-dark align-middle" >{{ r.simulation }}</a></td>
                                             <td><a class="text-truncate text-dark align-middle" >{{ r.tp_sl_ratio }}</a></td>

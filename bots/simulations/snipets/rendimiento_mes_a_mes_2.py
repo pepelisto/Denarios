@@ -18,8 +18,12 @@ for s in symbols:
         end_date = datetime(2023, i+1, 1)
         result = Closed_position_sim.objects.values('simulation', 'symbol__symbol').filter(
             symbol__symbol=symbol,
+            tp_sl_ratio=4,
+            sl_limit=0.02,
+            sl_low_limit=0.01,
+            ratr=0.05,
             close_date__range=(star_date, end_date),
-            simulation=4444,).\
+            simulation=44055,).\
             annotate(
                 pnl_total=Sum('profit'),
             ).order_by('pnl_total')

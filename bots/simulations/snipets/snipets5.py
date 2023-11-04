@@ -8,25 +8,26 @@ settings.configure(DATABASES=DATABASES, INSTALLED_APPS=INSTALLED_APPS)
 django.setup()
 from app.models import *
 
-star_date = datetime(2022, 3, 1)
-end_date = datetime(2023, 10, 30)
+star_date = datetime(2020, 1, 1)
+end_date = datetime(2023, 12, 30)
 
 result = Closed_position_sim.objects.values(
-          # 'symbol__symbol',
+          #   'symbol__symbol',
         # 'type',#, 'tp_sl_ratio', 'sl_limit' 'rsi_open', 'stoch_open',
       'simulation',
-     'tp_sl_ratio',
-    'sl_limit',#
-     'sl_low_limit',
-    'ratr',
+      'tp_sl_ratio',
+      'sl_limit',#
+      'sl_low_limit',
+      'ratr',
         # 'rsi_open', 'stoch_open',
      # 'simulation',
   ).filter(close_date__range=(star_date, end_date),
-            simulation=444408,
-           # tp_sl_ratio=3,
+          # symbol__symbol='BTCUSDT'
+             # simulation=44055,
+             # tp_sl_ratio=4,
            # sl_limit=0.02,
            # sl_low_limit=0.01,
-           # ratr=0.005,
+           #   ratr=0.05,
          # type='SELL',
          ).annotate(
     positions=Count('id'),

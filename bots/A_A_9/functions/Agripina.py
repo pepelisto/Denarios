@@ -73,8 +73,16 @@ class Agripina:
         print(set_leverage)
 
         try:
-            trade_market, stopPrice_precision = trader.place_order(symbol, side, usdt_size, leverage)
-            print(trade_market)
+            set=False
+            while not set:
+                trade_market, stopPrice_precision = trader.place_order(symbol, side, usdt_size, leverage)
+                print(trade_market)
+                if 'msg' in trade_market and "Order's notional must be no smaller than" in trade_market['msg']:
+                    # Handle the specific error related to notional value
+                    usdt_size += 30  # Increase quantity by 30 for the next attempt
+                else:
+                    set = True
+
         except Exception as e:
             print(f"Error placing order for symbol {symbol}: {e}")
             return
