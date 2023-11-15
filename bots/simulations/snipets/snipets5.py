@@ -8,8 +8,8 @@ settings.configure(DATABASES=DATABASES, INSTALLED_APPS=INSTALLED_APPS)
 django.setup()
 from app.models import *
 
-star_date = datetime(2020, 1, 1)
-end_date = datetime(2023, 12, 30)
+star_date = datetime(2023, 3, 1)
+end_date = datetime(2023, 10, 30)
 
 result = Closed_position_sim.objects.values(
           #   'symbol__symbol',
@@ -19,11 +19,12 @@ result = Closed_position_sim.objects.values(
       'sl_limit',#
       'sl_low_limit',
       'ratr',
+             # 'rsi_open'
         # 'rsi_open', 'stoch_open',
      # 'simulation',
   ).filter(close_date__range=(star_date, end_date),
           # symbol__symbol='BTCUSDT'
-             # simulation=44055,
+          #         simulation=4409905,
              # tp_sl_ratio=4,
            # sl_limit=0.02,
            # sl_low_limit=0.01,

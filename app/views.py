@@ -65,16 +65,16 @@ def analisis(request, year=None, month=None, symbol=None):
 
     result = Closed_position_sim.objects.values(
         # 'symbol__symbol',
-        'simulation', 'tp_sl_ratio', 'sl_low_limit', 'sl_limit', 'ratr'
-        # 'type' , 'rsi_open',# 'stoch_open'
+        'simulation', 'tp_sl_ratio', 'sl_low_limit', 'sl_limit', 'ratr',
+         'type' # 'rsi_open',# 'stoch_open'
     ).filter(
           close_date__range=(start_date, end_date),
-          tp_sl_ratio=4,
-          sl_low_limit=0.01, sl_limit=0.02,
-          simulation=44055,
+          tp_sl_ratio=1.5,
+          sl_low_limit=0.01, sl_limit=0.1,
+          simulation=4409905,
           # tp_sl_ratio=4,
-          ratr=0.015,
-       #   symbol__symbol='MATICUSDT',
+          ratr=0.0075,
+          # symbol__symbol='BTCUSDT',
 
     ).annotate(
         pnl_total=Sum('profit'),
