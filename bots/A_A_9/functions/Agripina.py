@@ -255,8 +255,11 @@ class Agripina:
                 try:
                     df = CryptoAnalyzer(symbols=symbols, interval=interval, limit=limit).analyze_crypto()
                     df_found = True
-                except ValueError as e:
-                    print('error getting data from binance api')
+                except Exception as e:
+                    if isinstance(e, ConnectionError) and "Temporary failure in name resolution" in str(e):
+                        print("DNS resolution error. Retrying in 2 minutes...")
+                    else:
+                        print(f"Error getting data from Binance API: {e}")
                     time.sleep(120)
             df = df[::-1].reset_index(drop=True)
             stoch_buy = 0.2

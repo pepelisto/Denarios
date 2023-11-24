@@ -9,7 +9,7 @@ settings.configure(DATABASES=DATABASES, INSTALLED_APPS=INSTALLED_APPS)
 django.setup()
 from app.models import *
 
-star_date = datetime(2023, 1, 1)
+star_date = datetime(2020, 1, 1)
 end_date = datetime(2023, 12, 30)
 pnl = 0
 for i in range(0, 30):
