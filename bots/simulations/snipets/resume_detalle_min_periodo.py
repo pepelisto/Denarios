@@ -1,14 +1,14 @@
-from django.conf import settings
+# from django.conf import settings
 import django
 from datetime import datetime, timedelta
 from Denarios.settings import DATABASES, INSTALLED_APPS
 from django.db.models import Avg, Max, Min, Count, ExpressionWrapper, F, Sum, IntegerField, Case, When, FloatField
 
-settings.configure(DATABASES=DATABASES, INSTALLED_APPS=INSTALLED_APPS)
+# settings.configure(DATABASES=DATABASES, INSTALLED_APPS=INSTALLED_APPS)
 django.setup()
 from app.models import *
 
-star_date = datetime(2023, 1, 1)
+star_date = datetime(2020, 1, 1)
 end_date = datetime(2023, 12, 30)
 
 result = Closed_position_sim.objects.values(
@@ -16,7 +16,7 @@ result = Closed_position_sim.objects.values(
       # 'type',
     'simulation', 'tp_sl_ratio', 'sl_low_limit', 'sl_limit', 'ratr'
         ).filter(close_date__range=(star_date, end_date),
-                  # simulation=444408  #, tp_sl_ratio=3, sl_limit=0.04, sl_low_limit=0.015
+                 simulation__startswith=437  #, tp_sl_ratio=3, sl_limit=0.04, sl_low_limit=0.015
                  ).annotate(
             positions=Count('id'),
             pnl_total=Sum('profit'),
@@ -35,8 +35,8 @@ result = Closed_position_sim.objects.values(
             min_pnl=Min('profit'),
             TP=Count(Case(When(profit__gt=0, then=1))),
             SL=Count(Case(When(profit__lt=0, then=1))),
-            avg_pnl_tp=Avg(Case(When(close_method='TP', then='profit'), output_field=FloatField())),
-            avg_pnl_sl=Avg(Case(When(close_method='SL', then='profit'), output_field=FloatField())),
+            avg_pnl_tp=Avg(Case(When(profit__gt=0, then='profit'), output_field=FloatField())),
+            avg_pnl_sl=Avg(Case(When(profit__lt=0, then='profit'), output_field=FloatField())),
         ).order_by('pnl_total')
 
 # Iterate through the simulation results
@@ -64,11 +64,18 @@ for e in result:
     max_pnl_positives = 0
     current_pnl_positives = 0
     pnl_suma = 0
+    #pnl_sum_in_a_row = 0
     max_pnl_period = 0
     min_pnl_period = 0
     pnl_week = 0
     weekly_positive_count = 0
     total_weeks = 0
+
+    """multiples periodos max y min"""
+    min_pnl_multiple_period = []
+    max_pnl_multiple_period = []
+    sum_pnl_multiple_period = []
+    """hasta aqui"""
 
     # Calculate values by iterating through positions
     for position in positions:
@@ -96,6 +103,16 @@ for e in result:
         max_pnl_period = max(pnl_suma, max_pnl_period)
         min_pnl_period = min(pnl_suma, min_pnl_period)
 
+        """ minimo multiplos peiodos----------------------"""
+        sum_pnl_multiple_period.append(0)
+        min_pnl_multiple_period.append(0)
+        max_pnl_multiple_period.append(0)
+        for k in range(len(sum_pnl_multiple_period)):
+            sum_pnl_multiple_period[k] += pnl
+            min_pnl_multiple_period[k] = min(sum_pnl_multiple_period[k], min_pnl_multiple_period[k])
+            max_pnl_multiple_period[k] = max(sum_pnl_multiple_period[k], max_pnl_multiple_period[k])
+        """ hasta aqui -----------------------"""
+
         # Calculate weekly positive count
         pnl_week += pnl
         if close_date.weekday() == 6:  # Assuming Sunday is the end of the week
@@ -113,6 +130,10 @@ for e in result:
     e['max_pnl_pos'] = max_pnl_positives
     e['max_pnl_period'] = max_pnl_period
     e['min_pnl_period'] = min_pnl_period
+    e['max_pnl_multi_period'] = max(max_pnl_multiple_period)
+    e['min_pnl_multi_period'] = min(min_pnl_multiple_period)
+    e['max_pnl_acumulated_multi_period'] = max(sum_pnl_multiple_period)
+    e['min_pnl_acumulated_multi_period'] = min(sum_pnl_multiple_period)
     e['weekly_win_rate'] = weekly_win_rate
     e['ROE'] = e['pnl_total'] / (e['positions'] * 5)
 

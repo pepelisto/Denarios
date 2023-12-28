@@ -74,8 +74,8 @@ def close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, fact
         sl_limit=sl_limit,
         sl_low_limit=sl_low_limit,
         ratr=factor_ajuste,
-        simulation=4409934000005,
-        sim_info='rsi +-4, histograma previo decreciente , posicion abierta al final se cierra en vez de deltarse',
+        simulation=4409933000005,
+        sim_info='rsi +-4, histograma previo decreciente ',
     )
     Open_position_sim.objects.get(symbol_id=s.pk).delete()
     op = Oportunities_sim.objects.get(symbol_id=s.pk)
@@ -277,7 +277,7 @@ def agripina(s, symbol, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp
         update_opportunities(op, type='OPEN')
 
 def simulator():
-    path = "samples/USDT3/2023_4h/"
+    path = "../samples/USDT3/2023_4h/"
     path5 = "samples/USDT3/2023_5m/"
     symbols = Symbol.objects.filter(find_in_api=True)
     for s in symbols:
@@ -296,11 +296,11 @@ def simulator():
                 rsi_sell = 50 - v2
                 for v3 in [1.5]:
                     sl_tp_ratio = v3
-                    for v5 in [0.01]:
+                    for v5 in [0.02]:
                         sl_low_limit = v5
-                        for v4 in [0.1, 0.3]:
+                        for v4 in [0.1]:
                             sl_limit = v4
-                            for v5 in [0.0075, 0.015]:
+                            for v5 in [0.01]:
                                 factor_ajuste = v5
                                 print(str(v3) + '  ' + str(v4))
                                 for idx in range(num_rows - 150, -1, -1):

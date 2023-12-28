@@ -74,9 +74,8 @@ def close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, fact
         sl_limit=sl_limit,
         sl_low_limit=sl_low_limit,
         ratr=factor_ajuste,
-        simulation=40055050,
-        sim_info='rsi +-5, histograma decreciente , AA_36 revisa el tf diario que sea el rsi 56 tambien favorable'
-                 'en valores de menora a 55 para sell y mayor a 45 para buy',
+        simulation=4056,
+        sim_info='rsi +-4, histograma decreciente',
     )
     Open_position_sim.objects.get(symbol_id=s.pk).delete()
     op = Oportunities_sim.objects.get(symbol_id=s.pk)
@@ -252,16 +251,16 @@ def agripina(s, symbol, df, df24, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx,
         entry_price_ = df.loc[idx, 'Close']
         quantity_ = 100
         open_date_ = df.loc[idx, 'timestamp']
-        date_to_compare = pd.to_datetime(df.loc[idx, 'timestamp']).strftime('%Y-%m-%d')
-        matching_row = df24[df24['timestamp'] == date_to_compare].index[0]
-        rsi_daily_tf = df24.iloc[matching_row]['RSI']
+        # date_to_compare = pd.to_datetime(df.loc[idx, 'timestamp']).strftime('%Y-%m-%d')
+        # matching_row = df24[df24['timestamp'] == date_to_compare].index[0]
+        # rsi_daily_tf = df24.iloc[matching_row]['RSI']
         symbol_ = s
         sl_price = calculate_stop_loss_factor(op, df, idx)
         sl_factor = (sl_price / entry_price_) - 1
         if op.type == 'BUY':
-            if rsi_daily_tf < 50 or str(rsi_daily_tf) == 'nan':
-                update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
-                return
+            # if rsi_daily_tf < 53 or str(rsi_daily_tf) == 'nan':
+            #     update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
+            #     return
             stoch_ = stoch_buy
             rsi_ = rsi_buy
             type_ = 'BUY'
@@ -272,9 +271,9 @@ def agripina(s, symbol, df, df24, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx,
                 return
                 # sl_price = entry_price_ * (1 - sl_low_limit)
         else:
-            if rsi_daily_tf > 50 or str(rsi_daily_tf) == 'nan':
-                update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
-                return
+            # if rsi_daily_tf > 47 or str(rsi_daily_tf) == 'nan':
+            #     update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
+            #     return
             stoch_ = stoch_sell
             rsi_ = rsi_sell
             type_ = 'SELL'
@@ -301,10 +300,10 @@ def simulator():
         df5 = pd.read_csv(csv_file_path5)
         csv_file_path24 = f"{path24}{symbol}_simulation.csv"
         df24 = pd.read_csv(csv_file_path24)
-        for v1 in [5]:#quedo fijado en 80 y 20, pq la variacion no mostro impacto signifiactivo
+        for v1 in [0]:#quedo fijado en 80 y 20, pq la variacion no mostro impacto signifiactivo
             stoch_buy = round(0.2 - v1, 2)
             stoch_sell = round(0.8 + v1, 2)
-            for v2 in [0]:
+            for v2 in [6]:
                 rsi_buy = 50 + v2
                 rsi_sell = 50 - v2
                 for v3 in [1.5]:

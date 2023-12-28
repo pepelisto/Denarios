@@ -6,7 +6,7 @@ from django.conf import settings
 import django
 from Denarios.settings import DATABASES, INSTALLED_APPS
 
-# settings.configure(DATABASES=DATABASES, INSTALLED_APPS=INSTALLED_APPS)
+settings.configure(DATABASES=DATABASES, INSTALLED_APPS=INSTALLED_APPS)
 django.setup()
 
 from app.models import *
@@ -74,8 +74,8 @@ def close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, fact
         sl_limit=sl_limit,
         sl_low_limit=sl_low_limit,
         ratr=factor_ajuste,
-        simulation=437951,
-        sim_info='rsi +-1, histograma positivo o negativo , AA_37 sin tf diario ',
+        simulation=440990505,
+        sim_info='nuevos valores, aa28, pero con rsi sobre 55 y bajo 45',
     )
     Open_position_sim.objects.get(symbol_id=s.pk).delete()
     op = Oportunities_sim.objects.get(symbol_id=s.pk)
@@ -209,13 +209,11 @@ def calculate_stop_loss_factor(op, df, idx):
                 starting += 5
     return sl_price
 
-def agripina(s, symbol, df, df24, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp_ratio, sl_limit, sl_low_limit):
+def agripina(s, symbol, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp_ratio, sl_limit, sl_low_limit):
     op = Oportunities_sim.objects.get(symbol_id=s.pk)
     if op.type == 'OPEN':
         return
     macdhistogram = df.loc[idx, 'macd_histogram_2']
-    macdhistogram_previo = df.loc[idx + 1, 'macd_histogram_2']
-    # macdhistogram_previo_previo = df.loc[idx + 2, 'macd_histogram_2']
     srsik = df.loc[idx, 'St k']
     srsid = df.loc[idx, 'St d']
     rsi = df.loc[idx, 'RSI']
@@ -251,16 +249,10 @@ def agripina(s, symbol, df, df24, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx,
         entry_price_ = df.loc[idx, 'Close']
         quantity_ = 100
         open_date_ = df.loc[idx, 'timestamp']
-        date_to_compare = pd.to_datetime(df.loc[idx, 'timestamp']).strftime('%Y-%m-%d')
-        matching_row = df24[df24['timestamp'] == date_to_compare].index[0]
-        rsi_daily_tf = df24.iloc[matching_row]['RSI']
         symbol_ = s
         sl_price = calculate_stop_loss_factor(op, df, idx)
         sl_factor = (sl_price / entry_price_) - 1
         if op.type == 'BUY':
-            # if rsi_daily_tf < 45 or str(rsi_daily_tf) == 'nan':
-            #     update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
-            #     return
             stoch_ = stoch_buy
             rsi_ = rsi_buy
             type_ = 'BUY'
@@ -271,9 +263,6 @@ def agripina(s, symbol, df, df24, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx,
                 return
                 # sl_price = entry_price_ * (1 - sl_low_limit)
         else:
-            # if rsi_daily_tf > 55 or str(rsi_daily_tf) == 'nan':
-            #     update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
-            #     return
             stoch_ = stoch_sell
             rsi_ = rsi_sell
             type_ = 'SELL'
@@ -286,9 +275,8 @@ def agripina(s, symbol, df, df24, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx,
         update_opportunities(op, type='OPEN')
 
 def simulator():
-    path = "samples/USDT3/2023_4h/"
+    path = "../samples/USDT3/2023_4h/"
     path5 = "samples/USDT3/2023_5m/"
-    path24 = "samples/USDT3/2023_1d/"
     symbols = Symbol.objects.filter(find_in_api=True)
     for s in symbols:
         print("simulando " + str(s.symbol))
@@ -298,27 +286,24 @@ def simulator():
         num_rows = min(len(df), 8405)
         csv_file_path5 = f"{path5}{symbol}_simulation.csv"
         df5 = pd.read_csv(csv_file_path5)
-        csv_file_path24 = f"{path24}{symbol}_simulation.csv"
-        df24 = pd.read_csv(csv_file_path24)
         for v1 in [0]:#quedo fijado en 80 y 20, pq la variacion no mostro impacto signifiactivo
             stoch_buy = round(0.2 - v1, 2)
             stoch_sell = round(0.8 + v1, 2)
-            for v2 in [1]:
+            for v2 in [5]:#quedo fijado -10, pq es equivalente a ignorarlo.
                 rsi_buy = 50 + v2
                 rsi_sell = 50 - v2
                 for v3 in [1.5]:
                     sl_tp_ratio = v3
                     for v5 in [0.01]:
                         sl_low_limit = v5
-                        for v4 in [0.1]:
+                        for v4 in [0.15]:
                             sl_limit = v4
                             for v5 in [0.0075]:
                                 factor_ajuste = v5
                                 print(str(v3) + '  ' + str(v4))
                                 for idx in range(num_rows - 150, -1, -1):
                                     anastasia(s, symbol, df, df5, idx, sl_tp_ratio, sl_limit, sl_low_limit, factor_ajuste)
-                                    agripina(s, symbol, df, df24, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp_ratio, sl_limit, sl_low_limit)
-                                '''pueden haber posiciones abiertas significativas q simplemente se eliminan al final del periodo, cerrarlas en lugar de deletarlas'''
+                                    agripina(s, symbol, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp_ratio, sl_limit, sl_low_limit)
                                 op = Oportunities_sim.objects.get(symbol_id=s.pk)
                                 update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
                                 try:

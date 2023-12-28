@@ -264,8 +264,8 @@ class Agripina:
             df = df[::-1].reset_index(drop=True)
             stoch_buy = 0.2
             stoch_sell = 0.8
-            rsi_buy = 50
-            rsi_sell = 50
+            rsi_buy = 50 + s.open_rsi
+            rsi_sell = 50 - s.open_rsi
             sl_tp_ratio = s.tp_sl_ratio
             sl_limit = s.sl_limit
             sl_low_limit = s.sl_low_limit

@@ -4,7 +4,7 @@ from datetime import datetime
 from Denarios.settings import DATABASES, INSTALLED_APPS
 from django.db.models import Avg, Max, Min, StdDev, Count, ExpressionWrapper, F, Sum, IntegerField, Case, When
 
-settings.configure(DATABASES=DATABASES, INSTALLED_APPS=INSTALLED_APPS)
+# settings.configure(DATABASES=DATABASES, INSTALLED_APPS=INSTALLED_APPS)
 django.setup()
 from app.models import *
 
@@ -18,12 +18,12 @@ for s in symbols:
         end_date = datetime(2023, i+1, 1)
         result = Closed_position_sim.objects.values('simulation', 'symbol__symbol').filter(
             symbol__symbol=symbol,
-            tp_sl_ratio=4,
-            sl_limit=0.02,
+            tp_sl_ratio=1.5,
+            sl_limit=0.1,
             sl_low_limit=0.01,
-            ratr=0.05,
+            ratr=0.0075,
             close_date__range=(star_date, end_date),
-            simulation=44055,).\
+            simulation=4056,).\
             annotate(
                 pnl_total=Sum('profit'),
             ).order_by('pnl_total')

@@ -24,9 +24,9 @@ def get_futures_trading_pairs(asset):
 
 # -----------this creates one new symbol for each symbol found in binance api
 # Usage get trading pairs
-asset = 'BUSD'
+asset = 'USDT'
 usd_trading_pairs = get_futures_trading_pairs(asset)
-print(len(usd_trading_pairs))
+print(usd_trading_pairs)
 # for i in usd_trading_pairs:
 #     new = Symbol(symbol=i)
 #     new.save()

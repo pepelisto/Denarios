@@ -71,10 +71,10 @@ def analisis(request, year=None, month=None, symbol=None):
           close_date__range=(start_date, end_date),
           tp_sl_ratio=1.5,
           sl_low_limit=0.01, sl_limit=0.1,
-          simulation=40055000,
+          simulation=437952,
           # tp_sl_ratio=4,
           ratr=0.0075,
-          # symbol__symbol='BTCUSDT',
+          symbol__symbol='SOLUSDT',
 
     ).annotate(
         pnl_total=Sum('profit'),
