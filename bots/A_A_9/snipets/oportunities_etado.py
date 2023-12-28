@@ -16,5 +16,5 @@ op = Oportunities.objects.filter()
 for o in op:
     print(o)
 
-print(Symbol.objects.all())
+# print(Symbol.objects.all())
 

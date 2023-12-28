@@ -1,3 +1,4 @@
+
 asgiref==3.7.2
 backports.zoneinfo==0.2.1
 certifi==2023.5.7
@@ -5,7 +6,9 @@ cffi==1.16.0
 charset-normalizer==3.2.0
 cryptography==41.0.5
 dj-config-url==0.1.1
+dj-database-url==2.1.0
 Django==4.2.3
+django-dbbackup==4.0.2
 environ==1.0
 gitdb==4.0.10
 GitPython==3.1.37
@@ -14,6 +17,7 @@ idna==3.4
 numpy==1.24.4
 packaging==23.2
 pandas==2.0.3
+psycopg2-binary==2.9.9
 pycparser==2.21
 pyOpenSSL==23.3.0
 python-dateutil==2.8.2
@@ -27,5 +31,4 @@ ta==0.10.2
 typing_extensions==4.7.1
 tzdata==2023.3
 urllib3==2.0.4
-
 
