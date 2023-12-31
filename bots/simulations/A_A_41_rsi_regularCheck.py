@@ -6,7 +6,7 @@ from django.conf import settings
 import django
 from Denarios.settings import DATABASES, INSTALLED_APPS
 
-settings.configure(DATABASES=DATABASES, INSTALLED_APPS=INSTALLED_APPS)
+# settings.configure(DATABASES=DATABASES, INSTALLED_APPS=INSTALLED_APPS)
 django.setup()
 
 from app.models import *
@@ -39,13 +39,11 @@ def create_position(symbol_, type_, entry_price_, quantity_, open_date_, stoch_,
         atr=0,
     )
 
-def close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, factor_ajuste, close_method, close_price=None):
-    if close_method == "TP" and close_price is None:
+def close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, factor_ajuste, close_method):
+    if close_method == "TP":
         exit_price = po.tp_price
-    elif close_method == "SL" and close_price is None:
-        exit_price = po.sl_price
     else:
-        exit_price = close_price
+        exit_price = po.sl_price
     if po.type == "BUY":
         delta = exit_price/po.entry_price - 1
     else:
@@ -76,9 +74,8 @@ def close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, fact
         sl_limit=sl_limit,
         sl_low_limit=sl_low_limit,
         ratr=factor_ajuste,
-        simulation=4003956,
-        sim_info='rsi +-6, histograma decreciente , AA_39.2 sin tf diario'
-                 ' cierra posiciones con macd t srsi en contra',
+        simulation=44154,
+        sim_info='rsi +-4, histograma creciente , con revision de rsi regular 50 y 70 y q fijo en 100',
     )
     Open_position_sim.objects.get(symbol_id=s.pk).delete()
     op = Oportunities_sim.objects.get(symbol_id=s.pk)
@@ -93,49 +90,16 @@ def update_position(po, alt_TP_SL=None, sl_price=None, tp_price=None):
         po.sl_price = sl_price
     po.save()
 
-def anastasia(s, df, df5, idx, sl_tp_ratio, sl_limit, sl_low_limit, factor_ajuste):
+def anastasia(s, symbol, df, df5, idx, sl_tp_ratio, sl_limit, sl_low_limit, factor_ajuste):
     try:
         po = Open_position_sim.objects.get(symbol_id=s.pk)
     except:
         return
     close_date_ = df.loc[idx, 'timestamp']
     matching_row = df5[df5['timestamp'] == close_date_].index[0]
-    macdhistogram = df.loc[idx + 1, 'macd_histogram_2']
-    macdhistogram_previo = df.loc[idx + 2, 'macd_histogram_2']
-    srsik = df.loc[idx + 1, 'St k']
-    srsid = df.loc[idx + 1, 'St d']
-    type_ = po.type
-    op = Oportunities_sim.objects.get(symbol_id=s.pk)
-    if type_ == 'SELL':
-        if srsik <= 0.1 and srsid <= 0.1:
-            update_opportunities(op, stock_rsi=False)
-        if macdhistogram > macdhistogram_previo:
-            update_opportunities(op, macd=False)
-        if not op.macd and not op.stock_rsi:
-            close = df.loc[idx, 'Open']
-            resultado = po.entry_price - close
-            if resultado < 0:
-                close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, factor_ajuste, close_method='TP', close_price=close)
-                return
-            else:
-                close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, factor_ajuste, close_method='SL', close_price=close)
-                return
-    else:
-        if srsik >= 0.9 and srsid >= 0.9:
-            update_opportunities(op, stock_rsi=False)
-        if macdhistogram < macdhistogram_previo:
-            update_opportunities(op, macd=False)
-        if not op.macd and not op.stock_rsi:
-            close = df.loc[idx, 'Open']
-            resultado = po.entry_price - close
-            if resultado > 0:
-                close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, factor_ajuste, close_method='TP', close_price=close)
-                return
-            else:
-                close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, factor_ajuste, close_method='SL', close_price=close)
-                return
     for i in range(matching_row, matching_row - 48, -1):
         row_data = df5.iloc[i]
+        type_ = po.type
         high = row_data['High']
         low = row_data['Low']
         close = row_data['Close']
@@ -204,7 +168,6 @@ def anastasia(s, df, df5, idx, sl_tp_ratio, sl_limit, sl_low_limit, factor_ajust
             alt = alteraciones + 1
             update_position(po, alt, stop_loss, take_profit)
 
-
 def calculate_stop_loss_factor(op, df, idx):
     sl_price = None
     sl_price_2 = None
@@ -246,7 +209,7 @@ def calculate_stop_loss_factor(op, df, idx):
                 starting += 5
     return sl_price
 
-def agripina(s, df, df24, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp_ratio, sl_limit, sl_low_limit):
+def agripina(s, symbol, df, df24, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp_ratio, sl_limit, sl_low_limit):
     op = Oportunities_sim.objects.get(symbol_id=s.pk)
     if op.type == 'OPEN':
         return
@@ -256,6 +219,7 @@ def agripina(s, df, df24, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp_r
     srsik = df.loc[idx, 'St k']
     srsid = df.loc[idx, 'St d']
     rsi = df.loc[idx, 'RSI']
+    rsi_regular = df.loc[idx, 'rsi_regular']
     #---------------------check the stochastich rsi indicators ----------------------------------------
     if srsik >= stoch_sell and srsid >= stoch_sell:
         if op.type != 'SELL':
@@ -286,7 +250,7 @@ def agripina(s, df, df24, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp_r
 
     if op.macd and op.rsi and op.stock_rsi:
         entry_price_ = df.loc[idx, 'Close']
-        quantity_ = 100
+        # quantity_ = 100
         open_date_ = df.loc[idx, 'timestamp']
         date_to_compare = pd.to_datetime(df.loc[idx, 'timestamp']).strftime('%Y-%m-%d')
         matching_row = df24[df24['timestamp'] == date_to_compare].index[0]
@@ -295,9 +259,11 @@ def agripina(s, df, df24, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp_r
         sl_price = calculate_stop_loss_factor(op, df, idx)
         sl_factor = (sl_price / entry_price_) - 1
         if op.type == 'BUY':
-            # if rsi_daily_tf < 43 or str(rsi_daily_tf) == 'nan':
-            #     update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
-            #     return
+            if rsi_regular > 70 or rsi_regular < 50:
+                update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
+                return
+            # quantity_ = 50 + (25 * -(50 - rsi))
+            quantity_ = 100
             stoch_ = stoch_buy
             rsi_ = rsi_buy
             type_ = 'BUY'
@@ -308,9 +274,11 @@ def agripina(s, df, df24, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp_r
                 return
                 # sl_price = entry_price_ * (1 - sl_low_limit)
         else:
-            # if rsi_daily_tf > 57 or str(rsi_daily_tf) == 'nan':
-            #     update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
-            #     return
+            if rsi_regular > 50 or rsi_regular < 30:
+                update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
+                return
+            # quantity_ = 50 + (25 * (50 - rsi))
+            quantity_ = 100
             stoch_ = stoch_sell
             rsi_ = rsi_sell
             type_ = 'SELL'
@@ -340,7 +308,7 @@ def simulator():
         for v1 in [0]:#quedo fijado en 80 y 20, pq la variacion no mostro impacto signifiactivo
             stoch_buy = round(0.2 - v1, 2)
             stoch_sell = round(0.8 + v1, 2)
-            for v2 in [6]:
+            for v2 in [4]:
                 rsi_buy = 50 + v2
                 rsi_sell = 50 - v2
                 for v3 in [1.5]:
@@ -350,13 +318,11 @@ def simulator():
                         for v4 in [0.1]:
                             sl_limit = v4
                             for v5 in [0.0075]:
-                                '''next try with fa igual a sl low limit'''
                                 factor_ajuste = v5
                                 print(str(v3) + '  ' + str(v4))
                                 for idx in range(num_rows - 150, -1, -1):
-                                    anastasia(s, df, df5, idx, sl_tp_ratio, sl_limit, sl_low_limit, factor_ajuste)
-                                    agripina(s, df, df24, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp_ratio, sl_limit, sl_low_limit)
-                                '''pueden haber posiciones abiertas significativas q simplemente se eliminan al final del periodo, cerrarlas en lugar de deletarlas'''
+                                    anastasia(s, symbol, df, df5, idx, sl_tp_ratio, sl_limit, sl_low_limit, factor_ajuste)
+                                    agripina(s, symbol, df, df24, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp_ratio, sl_limit, sl_low_limit)
                                 op = Oportunities_sim.objects.get(symbol_id=s.pk)
                                 update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
                                 try:

@@ -1,4 +1,4 @@
-from django.conf import settings
+
 import django
 from bots.A_A_9.functions.CryptoAnalyzer import CryptoAnalyzer
 from bots.A_A_9.functions.Take_position import BinanceTrader
@@ -7,9 +7,7 @@ import datetime
 from django.db import transaction, DatabaseError
 
 from Denarios.settings import DATABASES, INSTALLED_APPS
-settings.configure(DATABASES=DATABASES, INSTALLED_APPS=INSTALLED_APPS)
 django.setup()
-
 from app.models import *
 
 class Agripina:
@@ -45,7 +43,7 @@ class Agripina:
     def create_position(self, symbol_, type_, entry_price_, quantity_, open_date_, stoch_, rsi_, sl_price, take_profit,
                         leverage, stopPrice_precision, sl_order_id, tp_order_id, position_id):
         Open_position.objects.create(
-            symbol=symbol_,
+            symbol_id=symbol_.pk,
             type=type_,
             entry_price=entry_price_,
             leverage=leverage,

@@ -5,7 +5,7 @@ class Symbol(models.Model):
     symbol = models.CharField(max_length=12, unique=True)
     find_in_api = models.BooleanField(default=False)
     def __str__(self):
-        return self.symbol + ' - ' + str(self.find_in_api)
+        return self.symbol + ' - ' + str(self.find_in_api) + ' - ' + str(self.id)
 
 class Oportunities(models.Model):
     symbol = models.ForeignKey(Symbol, on_delete=models.CASCADE)
@@ -29,7 +29,7 @@ class Open_position(models.Model):
     quantity = models.FloatField()
     leverage = models.PositiveIntegerField()
     margin = models.FloatField()
-    id_position = models.PositiveIntegerField()
+    id_position = models.CharField(max_length=50, null=True, default=None)
     open_date = models.DateTimeField()
     tp_price = models.FloatField(null=True, default=None)
     sl_price = models.FloatField(null=True, default=None)

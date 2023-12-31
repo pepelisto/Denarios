@@ -132,6 +132,7 @@ for e in result:
     e['min_pnl_period'] = min_pnl_period
     e['max_pnl_multi_period'] = max(max_pnl_multiple_period)
     e['min_pnl_multi_period'] = min(min_pnl_multiple_period)
+    e['avg_min_multi'] = sum(min_pnl_multiple_period) / len(min_pnl_multiple_period)
     e['max_pnl_acumulated_multi_period'] = max(sum_pnl_multiple_period)
     e['min_pnl_acumulated_multi_period'] = min(sum_pnl_multiple_period)
     e['weekly_win_rate'] = weekly_win_rate

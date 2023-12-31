@@ -1,4 +1,4 @@
-from django.conf import settings
+# from django.conf import settings
 import django
 from bots.A_A_9.functions.CryptoAnalyzer import CryptoAnalyzer
 from bots.A_A_9.functions.Take_position import BinanceTrader
@@ -7,7 +7,7 @@ import datetime
 from django.db import transaction, DatabaseError
 
 from Denarios.settings import DATABASES, INSTALLED_APPS
-settings.configure(DATABASES=DATABASES, INSTALLED_APPS=INSTALLED_APPS)
+# settings.configure(DATABASES=DATABASES, INSTALLED_APPS=INSTALLED_APPS)
 django.setup()
 
 from app.models import *
