@@ -1,4 +1,4 @@
-#.env
+.env
 venv
 bots/simulations/samples/USDT
 bots/simulations/samples/USDT2
