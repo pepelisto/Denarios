@@ -74,8 +74,8 @@ def close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, fact
         sl_limit=sl_limit,
         sl_low_limit=sl_low_limit,
         ratr=factor_ajuste,
-        simulation=44154,
-        sim_info='rsi +-4, histograma creciente , con revision de rsi regular 50 y 70 y q fijo en 100',
+        simulation=441550000,
+        sim_info='histograma creciente , con revision de rsi regular pero no en sobre venta',
     )
     Open_position_sim.objects.get(symbol_id=s.pk).delete()
     op = Oportunities_sim.objects.get(symbol_id=s.pk)
@@ -231,26 +231,25 @@ def agripina(s, symbol, df, df24, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx,
     if op.type == 'SELL':
         if not op.macd and macdhistogram < macdhistogram_previo:
             update_opportunities(op, macd=True)
-        if op.macd and macdhistogram > macdhistogram_previo:
+        elif op.macd and macdhistogram > macdhistogram_previo:
             update_opportunities(op, macd=False)
-        if not op.rsi and rsi <= rsi_sell:
+        if not op.rsi and rsi <= rsi_sell and 50 >= rsi_regular: # >= 30:
            update_opportunities(op, rsi=True)
-        if op.rsi and rsi >= rsi_sell:
+        elif op.rsi and (rsi >= rsi_sell or rsi_regular >= 50): #or rsi_regular <= 30):
             update_opportunities(op, rsi=False)
     # --------------------check the bullish indicators   ----------------------------------------
     if op.type == 'BUY':
         if not op.macd and macdhistogram > macdhistogram_previo:
             update_opportunities(op, macd=True)
-        if op.macd and macdhistogram < macdhistogram_previo:
+        elif op.macd and macdhistogram < macdhistogram_previo:
             update_opportunities(op, macd=False)
-        if not op.rsi and rsi >= rsi_buy:
+        if not op.rsi and rsi >= rsi_buy and 50 <= rsi_regular: # <= 70:
             update_opportunities(op, rsi=True)
-        if op.rsi and rsi <= rsi_buy:
+        elif op.rsi and (rsi <= rsi_buy or rsi_regular <= 50): # or rsi_regular >= 70):
             update_opportunities(op, rsi=False)
 
     if op.macd and op.rsi and op.stock_rsi:
         entry_price_ = df.loc[idx, 'Close']
-        # quantity_ = 100
         open_date_ = df.loc[idx, 'timestamp']
         date_to_compare = pd.to_datetime(df.loc[idx, 'timestamp']).strftime('%Y-%m-%d')
         matching_row = df24[df24['timestamp'] == date_to_compare].index[0]
@@ -259,11 +258,8 @@ def agripina(s, symbol, df, df24, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx,
         sl_price = calculate_stop_loss_factor(op, df, idx)
         sl_factor = (sl_price / entry_price_) - 1
         if op.type == 'BUY':
-            if rsi_regular > 70 or rsi_regular < 50:
-                update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
-                return
-            # quantity_ = 50 + (25 * -(50 - rsi))
-            quantity_ = 100
+            quantity_ = round(25 + (15 * (rsi - 50)), 0)
+            # quantity_ = 100
             stoch_ = stoch_buy
             rsi_ = rsi_buy
             type_ = 'BUY'
@@ -274,11 +270,8 @@ def agripina(s, symbol, df, df24, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx,
                 return
                 # sl_price = entry_price_ * (1 - sl_low_limit)
         else:
-            if rsi_regular > 50 or rsi_regular < 30:
-                update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
-                return
-            # quantity_ = 50 + (25 * (50 - rsi))
-            quantity_ = 100
+            quantity_ = round(25 + (15 * (50 - rsi)), 0)
+            # quantity_ = 100
             stoch_ = stoch_sell
             rsi_ = rsi_sell
             type_ = 'SELL'
@@ -308,7 +301,7 @@ def simulator():
         for v1 in [0]:#quedo fijado en 80 y 20, pq la variacion no mostro impacto signifiactivo
             stoch_buy = round(0.2 - v1, 2)
             stoch_sell = round(0.8 + v1, 2)
-            for v2 in [4]:
+            for v2 in [5]:
                 rsi_buy = 50 + v2
                 rsi_sell = 50 - v2
                 for v3 in [1.5]:

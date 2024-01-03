@@ -47,6 +47,10 @@ class CryptoAnalyzer:
         rsi = ta.momentum.RSIIndicator(df['close'], window=56)
         df['rsi'] = rsi.rsi()
 
+        # Calculate RSI
+        rsi_fast = ta.momentum.RSIIndicator(df['close'])
+        df['rsi_fast'] = rsi_fast.rsi()
+
         return df
 
     def analyze_crypto(self):

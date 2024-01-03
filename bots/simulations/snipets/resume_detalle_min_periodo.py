@@ -16,7 +16,7 @@ result = Closed_position_sim.objects.values(
       # 'type',
     'simulation', 'tp_sl_ratio', 'sl_low_limit', 'sl_limit', 'ratr'
         ).filter(close_date__range=(star_date, end_date),
-                 simulation__startswith=437  #, tp_sl_ratio=3, sl_limit=0.04, sl_low_limit=0.015
+                 # simulation__startswith=437  #, tp_sl_ratio=3, sl_limit=0.04, sl_low_limit=0.015
                  ).annotate(
             positions=Count('id'),
             pnl_total=Sum('profit'),

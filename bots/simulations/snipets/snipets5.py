@@ -25,14 +25,14 @@ from django.db.models import Avg, Max, Min, StdDev, Count,\
 django.setup()
 from app.models import *
 
-star_date = datetime(2021, 1, 1)
+star_date = datetime(2020, 1, 1)
 end_date = datetime(2023, 12, 30)
 
 result = Closed_position_sim.objects.values(
-          #   'symbol__symbol',
-          #'type',#, 'tp_sl_ratio', 'sl_limit' 'rsi_open', 'stoch_open',
+          # 'symbol__symbol',
+          # 'type',#, 'tp_sl_ratio', 'sl_limit' 'rsi_open', 'stoch_open',
       'simulation',
-          # 'sim_info',
+             # 'sim_info',
       #'tp_sl_ratio',
       #'sl_limit',#
       #'sl_low_limit',
@@ -43,7 +43,7 @@ result = Closed_position_sim.objects.values(
      # 'simulation',
   ).filter(close_date__range=(star_date, end_date),
            # symbol__symbol='BTCUSDT',
-          #  simulation__startswith=437,
+           #   simulation__startswith=441517000,
              # tp_sl_ratio=4,
            # sl_limit=0.02,
            # sl_low_limit=0.01,
@@ -88,7 +88,7 @@ result = Closed_position_sim.objects.values(
         ),
         output_field=IntegerField()
     )
-).order_by('pnl_total')
+).order_by('pnl_avg_std')
 
 # Now the result will contain the statistics calculated for each combination
 for entry in result:

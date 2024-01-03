@@ -175,10 +175,12 @@ class Agripina:
         op = Oportunities.objects.get(symbol=s.symbol, timeframe=self.timeframe)
         if op.type == 'OPEN':
             return
-        macdhistogram = df['macd_histogram'].iloc[0]
-        srsik = df['stoch_osc_k'].iloc[0]
-        srsid = df['stoch_osc_d'].iloc[0]
-        rsi = df['rsi'].iloc[0]
+        macdhistogram = df['macd_histogram'].iloc[1]
+        macdhistogram_previo = df['macd_histogram'].iloc[2]
+        srsik = df['stoch_osc_k'].iloc[1]
+        srsid = df['stoch_osc_d'].iloc[1]
+        rsi = df['rsi'].iloc[1]
+        rsi_fast = df['rsi_fast'].iloc[1]
         #---------------------check the stochastich rsi indicators ----------------------------------------
         if srsik >= stoch_sell and srsid >= stoch_sell:
             if op.type != 'SELL':
@@ -188,30 +190,34 @@ class Agripina:
                 self.retry_on_database_error(self.update_opportunities, op, type='BUY', stock_rsi=True, macd=False, rsi=False)
         # ----------------------check the bearish indicators   ----------------------------------------
         if op.type == 'SELL':
-            if not op.macd:
-                if macdhistogram < 0:
+            if not op.macd and macdhistogram < macdhistogram_previo:
                     self.retry_on_database_error(self.update_opportunities, op, macd=True)
-            if not op.rsi:
-                if rsi <= rsi_sell:
+            elif op.macd and macdhistogram > macdhistogram_previo:
+                    self.retry_on_database_error(self.update_opportunities, op, macd=False)
+            if not op.rsi and rsi <= rsi_sell and 50 >= rsi_fast:
                     self.retry_on_database_error(self.update_opportunities, op, rsi=True)
+            elif op.rsi and (rsi >= rsi_sell or rsi_fast >= 50):
+                    self.retry_on_database_error(self.update_opportunities, op, rsi=False)
         # --------------------check the bullish indicators   ----------------------------------------
         if op.type == 'BUY':
-            if not op.macd:
-                if macdhistogram > 0:
+            if not op.macd and macdhistogram > macdhistogram_previo:
                     self.retry_on_database_error(self.update_opportunities, op, macd=True)
-            if not op.rsi:
-
-                if rsi >= rsi_buy:
+            elif op.macd and macdhistogram < macdhistogram_previo:
+                    self.retry_on_database_error(self.update_opportunities, op, macd=False)
+            if not op.rsi and rsi >= rsi_buy and 50 <= rsi_fast:
                     self.retry_on_database_error(self.update_opportunities, op, rsi=True)
-
+            elif op.rsi and (rsi <= rsi_buy or rsi_fast <= 50):
+                    self.retry_on_database_error(self.update_opportunities, op, rsi=False)
+        # --------------------open positions when conditions met ----------------------------------------
         if op.macd and op.rsi and op.stock_rsi:
             entry_price_ = df['close'].iloc[0]
-            quantity_ = s.q
+            # quantity_ = s.q
             open_date_ = df['timestamp'].iloc[0]
             symbol_ = s.symbol
             sl_price = self.calculate_stop_loss_factor(op, df)
             sl_factor = (sl_price / entry_price_) - 1
             if op.type == 'BUY':
+                quantity_ = round(25 + (15 * (rsi - 50)), 0)
                 stoch_ = stoch_buy
                 rsi_ = rsi_buy
                 type_ = 'BUY'
@@ -221,6 +227,7 @@ class Agripina:
                     self.retry_on_database_error(self.update_opportunities, op, type='NONE', stock_rsi=False, macd=False, rsi=False)
                     return
             else:
+                quantity_ = round(25 + (15 * (50 - rsi)), 0)
                 stoch_ = stoch_sell
                 rsi_ = rsi_sell
                 type_ = 'SELL'

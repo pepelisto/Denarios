@@ -19,7 +19,7 @@ for i in range(0, 42):
           'tp_sl_ratio', 'sl_limit', 'sl_low_limit', 'ratr',
           'simulation',
     ).filter(close_date__range=(star_date, end_date)).filter(symbol_id=i).filter(
-        simulation__startswith=437).annotate(
+        simulation__startswith=441560000).annotate(
         positions=Count('id'),
         pnl_total=Sum('profit'),
         positive_pnl_count=Count(Case(When(profit__gt=0, then=1))),
@@ -32,17 +32,17 @@ for i in range(0, 42):
     for entry in result:
         print(entry)
         pnl += entry['pnl_total']
-        Optimum_parameter(
-            symbol_id=entry['symbol'],
-            timeframe=240,
-            tp_sl_ratio=entry['tp_sl_ratio'],
-            sl_limit=0.1,
-            sl_low_limit=0.01,
-            # open_rsi=5,
-            pnl=round(entry['pnl_total'], 2),
-            factor_ajuste=entry['ratr'],
-            simulation=entry['simulation'],
-            pnl_av=entry['pnl_average']
-        ).save()
+        # Optimum_parameter(
+        #     symbol_id=entry['symbol'],
+        #     timeframe=240,
+        #     tp_sl_ratio=entry['tp_sl_ratio'],
+        #     sl_limit=0.1,
+        #     sl_low_limit=0.01,
+        #     open_rsi=6,
+        #     pnl=round(entry['pnl_total'], 2),
+        #     factor_ajuste=entry['ratr'],
+        #     simulation=entry['simulation'],
+        #     pnl_av=entry['pnl_average']
+        # ).save()
 
 print(" total PNL con bola de cristal : " + str(pnl))
