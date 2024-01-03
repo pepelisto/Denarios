@@ -211,7 +211,7 @@ class Agripina:
         # --------------------open positions when conditions met ----------------------------------------
         if op.macd and op.rsi and op.stock_rsi:
             entry_price_ = df['close'].iloc[0]
-            # quantity_ = s.q
+            # quantity_ = s.q elimina linea
             open_date_ = df['timestamp'].iloc[0]
             symbol_ = s.symbol
             sl_price = self.calculate_stop_loss_factor(op, df)
