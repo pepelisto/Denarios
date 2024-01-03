@@ -238,7 +238,7 @@ class Agripina:
                     return
             #--------------aqui abrir posicion en binance-----------------------------
             sl_factor = (sl_price / entry_price_) - 1
-            usdt_size = s.q
+            usdt_size = quantity_
             sym = s.symbol.symbol
             profit_factor = 1 + sl_factor * (-1.05) * sl_tp_ratio
             loss_factor = 1 + sl_factor * (1.05)
