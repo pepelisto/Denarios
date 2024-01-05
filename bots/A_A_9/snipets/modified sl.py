@@ -1,4 +1,4 @@
-from bots.A_A.functions.Take_position import BinanceTrader
+from bots.notUsed.A_A.functions.Take_position import BinanceTrader
 
 position_side = 'BOTH'  # Replace with your position side (e.g., 'LONG' or 'SHORT')
 

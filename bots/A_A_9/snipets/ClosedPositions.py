@@ -7,7 +7,7 @@ from Denarios.settings import DATABASES, INSTALLED_APPS
 from django.db.models import Avg, Max, Min, StdDev, Count, ExpressionWrapper, F, Sum, IntegerField, Case, When
 from django.db.models import Q
 
-settings.configure(DATABASES=DATABASES, INSTALLED_APPS=INSTALLED_APPS)
+
 django.setup()
 from app.models import *
 

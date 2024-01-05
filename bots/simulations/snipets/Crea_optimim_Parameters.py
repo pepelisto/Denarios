@@ -14,7 +14,7 @@ end_date = datetime(2023, 12, 30)
 pnl = 0
 for i in range(0, 42):
     result = Closed_position_sim.objects.values(
-          'symbol',# 'type',#, 'tp_sl_ratio', 'sl_limit' 'rsi_open', 'stoch_open',
+          'symbol__symbol',# 'type',#, 'tp_sl_ratio', 'sl_limit' 'rsi_open', 'stoch_open',
           'simulation',
           'tp_sl_ratio', 'sl_limit', 'sl_low_limit', 'ratr',
           'simulation',

@@ -91,7 +91,8 @@ class BinanceTrader:
             'timeInForce': 'GTE_GTC',
             'closePosition': True,
             'positionSide': position_info['positionSide'], # this might be remooved but not sure
-            'workingType': 'MARK_PRICE',
+            # 'workingType': 'MARK_PRICE',
+            'workingType': 'CONTRACT_PRICE',
             'recvWindow': self.recv_window
         }
 
@@ -135,6 +136,7 @@ class BinanceTrader:
                 return position
 
         raise ValueError(f"Position information not found for symbol: {symbol}")
+
 
     def set_leverage(self, symbol, leverage):
         endpoint = '/fapi/v1/leverage'
@@ -183,6 +185,7 @@ class BinanceTrader:
                 closed_positions.append(position)
 
         return closed_positions
+
 
     def get_open_positions(self, symbol):
         endpoint = '/fapi/v2/positionRisk'
