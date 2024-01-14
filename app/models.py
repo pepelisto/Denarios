@@ -71,8 +71,8 @@ class Closed_position(models.Model):
     timeframe = models.IntegerField(null=True, default=0)
 
     def __str__(self):
-        return str(self.symbol) + ' - ' + self.type + ' - ' + str(self.alt_TP_SL) + ' - ' + str(self.timeframe)   \
-            + ' - ' + str(self.profit)
+        return str(self.symbol) + ' - ' + self.type + ' - ' + str(self.alt_TP_SL) + ' - ' + str(self.quantity)   \
+            + ' - ' + str(self.profit) + ' - ' + str(self.fee)
 
 
 #------------------------------for simulations that calculate the optimum variables---------------------------------

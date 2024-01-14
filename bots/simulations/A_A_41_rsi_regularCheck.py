@@ -49,6 +49,7 @@ def close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, fact
     else:
         delta = -((exit_price / po.entry_price) - 1)
     quantity_ = round(po.quantity * (1 + delta), 2)
+    #add funding fee 0.01% cada 8 horas
     fee_entry = round(po.quantity * 0.00045, 5)
     fee_exit = round(quantity_ * 0.00045, 5)
     total_fee = round(fee_exit + fee_entry, 4)
@@ -74,8 +75,8 @@ def close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, fact
         sl_limit=sl_limit,
         sl_low_limit=sl_low_limit,
         ratr=factor_ajuste,
-        simulation=441600000,
-        sim_info='histograma creciente , con revision de rsi regular pero no en sobre venta',
+        simulation=441560004,
+        sim_info='histograma creciente , con sl limit pequeño',
     )
     Open_position_sim.objects.get(symbol_id=s.pk).delete()
     op = Oportunities_sim.objects.get(symbol_id=s.pk)
@@ -304,11 +305,11 @@ def simulator():
             for v2 in [10]:
                 rsi_buy = 50 + v2
                 rsi_sell = 50 - v2
-                for v3 in [1.5]:
+                for v3 in [3]:
                     sl_tp_ratio = v3
                     for v5 in [0.01]:
                         sl_low_limit = v5
-                        for v4 in [0.1]:
+                        for v4 in [0.015]:
                             sl_limit = v4
                             for v5 in [0.0075]:
                                 factor_ajuste = v5

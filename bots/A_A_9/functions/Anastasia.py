@@ -71,8 +71,8 @@ class Anastasia:
         else:
             delta = -((exit_price / po.entry_price) - 1)
         quantity_ = round(po.quantity * (1 + delta), 2)
-        fee_entry = round(po.quantity * 0.00036, 5)
-        fee_exit = round(quantity_ * 0.00036, 5)
+        fee_entry = round(po.quantity * 0.00045, 5)
+        fee_exit = round(quantity_ * 0.00045, 5)
         total_fee = round(fee_exit + fee_entry, 4)
         profit_ = round(po.quantity * delta - total_fee, 3)
         roe_ = round((profit_/po.quantity)*100, 1)

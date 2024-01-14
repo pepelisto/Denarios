@@ -30,12 +30,13 @@ end_date = datetime(2023, 12, 30)
 
 result = Closed_position_sim.objects.values(
           # 'symbol__symbol',
-          # 'type',#, 'tp_sl_ratio', 'sl_limit' 'rsi_open', 'stoch_open',
+         #  'type',#, 'tp_sl_ratio', 'sl_limit' 'rsi_open', 'stoch_open',
       'simulation',
-      # 'sim_info',
+
+      #'sim_info',
   ).filter(close_date__range=(star_date, end_date),
            # symbol__symbol='BTCUSDT',
-           #   simulation__startswith=441517000,# tp_sl_ratio=4,# sl_limit=0.02,# sl_low_limit=0.01,# ratr=0.05,# type='SELL',
+         #  simulation__startswith=44356000,# tp_sl_ratio=4,# sl_limit=0.02,# sl_low_limit=0.01,# ratr=0.05,# type='SELL',
          ).annotate(
     positions=Count('id'),
     pnl_total=Round(Sum('profit'), 2),
