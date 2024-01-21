@@ -75,7 +75,7 @@ def close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, fact
         sl_limit=sl_limit,
         sl_low_limit=sl_low_limit,
         ratr=factor_ajuste,
-        simulation=441560004,
+        simulation=441560339,
         sim_info='histograma creciente , con sl limit pequeño',
     )
     Open_position_sim.objects.get(symbol_id=s.pk).delete()
@@ -210,13 +210,12 @@ def calculate_stop_loss_factor(op, df, idx):
                 starting += 5
     return sl_price
 
-def agripina(s, symbol, df, df24, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp_ratio, sl_limit, sl_low_limit):
+def agripina(s, symbol, df,  stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp_ratio, sl_limit, sl_low_limit):
     op = Oportunities_sim.objects.get(symbol_id=s.pk)
     if op.type == 'OPEN':
         return
     macdhistogram = df.loc[idx, 'macd_histogram_2']
     macdhistogram_previo = df.loc[idx + 1, 'macd_histogram_2']
-    # macdhistogram_previo_previo = df.loc[idx + 2, 'macd_histogram_2']
     srsik = df.loc[idx, 'St k']
     srsid = df.loc[idx, 'St d']
     rsi = df.loc[idx, 'RSI']
@@ -230,31 +229,39 @@ def agripina(s, symbol, df, df24, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx,
             update_opportunities(op, type='BUY', stock_rsi=True, macd=False, rsi=False)
     # ----------------------check the bearish indicators   ----------------------------------------
     if op.type == 'SELL':
-        if not op.macd and macdhistogram < macdhistogram_previo:
-            update_opportunities(op, macd=True)
-        elif op.macd and macdhistogram > macdhistogram_previo:
-            update_opportunities(op, macd=False)
-        if not op.rsi and rsi <= rsi_sell and 50 >= rsi_regular: # >= 30:
-           update_opportunities(op, rsi=True)
-        elif op.rsi and (rsi >= rsi_sell or rsi_regular >= 50): #or rsi_regular <= 30):
-            update_opportunities(op, rsi=False)
+        if srsik <= 0.20 or srsid <= 0.20:
+            update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
+        else:
+            if not op.macd and macdhistogram < macdhistogram_previo:
+                update_opportunities(op, macd=True)
+            elif op.macd and macdhistogram > macdhistogram_previo:
+                update_opportunities(op, macd=False)
+            if not op.rsi and rsi <= rsi_sell and 50 >= rsi_regular: # >= 30:
+               update_opportunities(op, rsi=True)
+            elif op.rsi and (rsi >= rsi_sell or rsi_regular >= 50): #or rsi_regular <= 30):
+                update_opportunities(op, rsi=False)
+
     # --------------------check the bullish indicators   ----------------------------------------
     if op.type == 'BUY':
-        if not op.macd and macdhistogram > macdhistogram_previo:
-            update_opportunities(op, macd=True)
-        elif op.macd and macdhistogram < macdhistogram_previo:
-            update_opportunities(op, macd=False)
-        if not op.rsi and rsi >= rsi_buy and 50 <= rsi_regular: # <= 70:
-            update_opportunities(op, rsi=True)
-        elif op.rsi and (rsi <= rsi_buy or rsi_regular <= 50): # or rsi_regular >= 70):
-            update_opportunities(op, rsi=False)
+        if srsik >= 0.80 or srsid >= 0.80:
+            update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
+        else:
+            if not op.macd and macdhistogram > macdhistogram_previo:
+                update_opportunities(op, macd=True)
+            elif op.macd and macdhistogram < macdhistogram_previo:
+                update_opportunities(op, macd=False)
+            if not op.rsi and rsi >= rsi_buy and 50 <= rsi_regular: # <= 70:
+                update_opportunities(op, rsi=True)
+            elif op.rsi and (rsi <= rsi_buy or rsi_regular <= 50): # or rsi_regular >= 70):
+                update_opportunities(op, rsi=False)
+
 
     if op.macd and op.rsi and op.stock_rsi:
         entry_price_ = df.loc[idx, 'Close']
         open_date_ = df.loc[idx, 'timestamp']
-        date_to_compare = pd.to_datetime(df.loc[idx, 'timestamp']).strftime('%Y-%m-%d')
-        matching_row = df24[df24['timestamp'] == date_to_compare].index[0]
-        rsi_daily_tf = df24.iloc[matching_row]['RSI']
+        # date_to_compare = pd.to_datetime(df.loc[idx, 'timestamp']).strftime('%Y-%m-%d')
+        # matching_row = df24[df24['timestamp'] == date_to_compare].index[0]
+        # rsi_daily_tf = df24.iloc[matching_row]['RSI']
         symbol_ = s
         sl_price = calculate_stop_loss_factor(op, df, idx)
         sl_factor = (sl_price / entry_price_) - 1
@@ -285,9 +292,9 @@ def agripina(s, symbol, df, df24, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx,
         update_opportunities(op, type='OPEN')
 
 def simulator():
-    path = "samples/USDT3/2023_4h/"
-    path5 = "samples/USDT3/2023_5m/"
-    path24 = "samples/USDT3/2023_1d/"
+    path = "samples/USDT4/2023_4h/"
+    path5 = "samples/USDT4/2023_5m/"
+    # path24 = "samples/USDT3/2023_1d/"
     symbols = Symbol.objects.filter(find_in_api=True)
     for s in symbols:
         print("simulando " + str(s.symbol))
@@ -297,26 +304,26 @@ def simulator():
         num_rows = min(len(df), 8405)
         csv_file_path5 = f"{path5}{symbol}_simulation.csv"
         df5 = pd.read_csv(csv_file_path5)
-        csv_file_path24 = f"{path24}{symbol}_simulation.csv"
-        df24 = pd.read_csv(csv_file_path24)
+        # csv_file_path24 = f"{path24}{symbol}_simulation.csv"
+        # df24 = pd.read_csv(csv_file_path24)
         for v1 in [0]:#quedo fijado en 80 y 20, pq la variacion no mostro impacto signifiactivo
             stoch_buy = round(0.2 - v1, 2)
             stoch_sell = round(0.8 + v1, 2)
-            for v2 in [10]:
+            for v2 in [6]:
                 rsi_buy = 50 + v2
                 rsi_sell = 50 - v2
                 for v3 in [3]:
                     sl_tp_ratio = v3
                     for v5 in [0.01]:
                         sl_low_limit = v5
-                        for v4 in [0.015]:
+                        for v4 in [0.1]:
                             sl_limit = v4
                             for v5 in [0.0075]:
                                 factor_ajuste = v5
                                 print(str(v3) + '  ' + str(v4))
                                 for idx in range(num_rows - 150, -1, -1):
                                     anastasia(s, symbol, df, df5, idx, sl_tp_ratio, sl_limit, sl_low_limit, factor_ajuste)
-                                    agripina(s, symbol, df, df24, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp_ratio, sl_limit, sl_low_limit)
+                                    agripina(s, symbol, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_tp_ratio, sl_limit, sl_low_limit)
                                 op = Oportunities_sim.objects.get(symbol_id=s.pk)
                                 update_opportunities(op, type='NONE', stock_rsi=False, macd=False, rsi=False)
                                 try:

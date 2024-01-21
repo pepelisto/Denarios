@@ -13,7 +13,7 @@ interval = '4h'
 m = 240
 candles = 1100
 limit = 400 + candles
-periodos = 8
+periodos = 3
 
 symbols_queryset = Symbol.objects.filter(find_in_api=True)
 symbols = [symbol.symbol for symbol in symbols_queryset]
@@ -35,5 +35,5 @@ for s in symbols:
 
     # Concatenate the list of data frames into one
     combined_data_frame = pd.concat(data_frames_list, ignore_index=True)
-    combined_data_frame.to_csv(f"USDT3/2023_4h/{s}_simulation.csv", index=False)
+    combined_data_frame.to_csv(f"USDT4/2023_4h/{s}_simulation.csv", index=False)
     print(combined_data_frame)

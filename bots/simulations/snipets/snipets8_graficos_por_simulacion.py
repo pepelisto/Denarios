@@ -29,12 +29,13 @@ django.setup()
 from app.models import *
 star_date = datetime(2020, 1, 1)
 end_date = datetime(2023, 12, 30)
+sim = 441560339
 
 result = Closed_position_sim.objects.values(
     # 'close_date',  # Truncar la fecha a días
     'simulation',
 ).filter(close_date__range=(star_date, end_date),
-   #      simulation=4435600000,
+         simulation=sim,
 ).annotate(
     positions=Count('id'),
     pnl_total=Round(Sum('profit'), 2),
@@ -82,7 +83,7 @@ for entry in result:
     print(entry)
 
 # Get unique simulation numbers
-simulations = Closed_position_sim.objects.exclude(simulation=441517000).filter(close_date__range=(star_date, end_date)).values_list('simulation', flat=True).distinct()
+simulations = Closed_position_sim.objects.filter(simulation=sim).filter(close_date__range=(star_date, end_date)).values_list('simulation', flat=True).distinct()
 
 # Create a plot for each simulation number
 fig, ax = plt.subplots(figsize=(16, 9))

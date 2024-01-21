@@ -190,24 +190,30 @@ class Agripina:
                 self.retry_on_database_error(self.update_opportunities, op, type='BUY', stock_rsi=True, macd=False, rsi=False)
         # ----------------------check the bearish indicators   ----------------------------------------
         if op.type == 'SELL':
-            if not op.macd and macdhistogram < macdhistogram_previo:
-                    self.retry_on_database_error(self.update_opportunities, op, macd=True)
-            elif op.macd and macdhistogram > macdhistogram_previo:
-                    self.retry_on_database_error(self.update_opportunities, op, macd=False)
-            if not op.rsi and rsi <= rsi_sell and 50 >= rsi_fast:
-                    self.retry_on_database_error(self.update_opportunities, op, rsi=True)
-            elif op.rsi and (rsi >= rsi_sell or rsi_fast >= 50):
-                    self.retry_on_database_error(self.update_opportunities, op, rsi=False)
+            if srsik <= 0.20 or srsid <= 0.20:
+                self.retry_on_database_error(self.update_opportunities, op, type='NONE', stock_rsi=False, macd=False, rsi=False)
+            else:
+                if not op.macd and macdhistogram < macdhistogram_previo:
+                        self.retry_on_database_error(self.update_opportunities, op, macd=True)
+                elif op.macd and macdhistogram > macdhistogram_previo:
+                        self.retry_on_database_error(self.update_opportunities, op, macd=False)
+                if not op.rsi and rsi <= rsi_sell and 50 >= rsi_fast:
+                        self.retry_on_database_error(self.update_opportunities, op, rsi=True)
+                elif op.rsi and (rsi >= rsi_sell or rsi_fast >= 50):
+                        self.retry_on_database_error(self.update_opportunities, op, rsi=False)
         # --------------------check the bullish indicators   ----------------------------------------
         if op.type == 'BUY':
-            if not op.macd and macdhistogram > macdhistogram_previo:
-                    self.retry_on_database_error(self.update_opportunities, op, macd=True)
-            elif op.macd and macdhistogram < macdhistogram_previo:
-                    self.retry_on_database_error(self.update_opportunities, op, macd=False)
-            if not op.rsi and rsi >= rsi_buy and 50 <= rsi_fast:
-                    self.retry_on_database_error(self.update_opportunities, op, rsi=True)
-            elif op.rsi and (rsi <= rsi_buy or rsi_fast <= 50):
-                    self.retry_on_database_error(self.update_opportunities, op, rsi=False)
+            if srsik >= 0.80 or srsid >= 0.80:
+                self.retry_on_database_error(self.update_opportunities, op, type='NONE', stock_rsi=False, macd=False,rsi=False)
+            else:
+                if not op.macd and macdhistogram > macdhistogram_previo:
+                        self.retry_on_database_error(self.update_opportunities, op, macd=True)
+                elif op.macd and macdhistogram < macdhistogram_previo:
+                        self.retry_on_database_error(self.update_opportunities, op, macd=False)
+                if not op.rsi and rsi >= rsi_buy and 50 <= rsi_fast:
+                        self.retry_on_database_error(self.update_opportunities, op, rsi=True)
+                elif op.rsi and (rsi <= rsi_buy or rsi_fast <= 50):
+                        self.retry_on_database_error(self.update_opportunities, op, rsi=False)
         # --------------------open positions when conditions met ----------------------------------------
         if op.macd and op.rsi and op.stock_rsi:
             entry_price_ = df['close'].iloc[0]
