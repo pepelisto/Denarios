@@ -1,6 +1,7 @@
 from bots.A_A_9.functions.Anastasia import Anastasia
 import time
 import datetime
+from bots.A_A_9.functions.email_not import send_email
 
 def run_scheduled_pattern():
     while True:
@@ -17,9 +18,11 @@ def run_scheduled_pattern():
                 time.sleep(60)
                 break
             except Exception as e:
+                # Send email notification
+                error_message = f"Error on Anastasia: {e}"
+                send_email("Anastasia Error", error_message)
                 print(f"Error: {e}")
-                print("Retrying in 60 seconds...")
-                time.sleep(60)
+                raise
 
 
 run_scheduled_pattern()

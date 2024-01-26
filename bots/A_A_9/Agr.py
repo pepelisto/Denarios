@@ -1,7 +1,9 @@
 from bots.A_A_9.functions.Agripina import Agripina
+from bots.A_A_9.functions.email_not import send_email
 import time
 import datetime
 from pytz import utc
+
 
 
 def run_scheduled_pattern():
@@ -31,13 +33,15 @@ def run_scheduled_pattern():
         time.sleep(remaining_time)
         while True:
             try:
-                Agripina(timeframe=240).traeder()
                 print("Executing your task.")
+                Agripina(timeframe=240).traeder()
                 break
             except Exception as e:
+                # Send email notification
+                error_message = f"Error on Agripina: {e}"
+                send_email("Agripina Error", error_message)
                 print(f"Error: {e}")
-                print("Retrying in 60 seconds...")
-                time.sleep(60)
+                raise
 
 run_scheduled_pattern()
 

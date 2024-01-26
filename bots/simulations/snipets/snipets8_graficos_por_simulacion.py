@@ -27,9 +27,9 @@ from django.db.models.functions import TruncDate
 django.setup()
 
 from app.models import *
-star_date = datetime(2022, 1, 1)
+star_date = datetime(2023, 1, 1)
 end_date = datetime(2024, 1, 30)
-sim = 441530339
+sim = 441500339
 
 result = Closed_position_sim.objects.values(
     # 'close_date',  # Truncar la fecha a días
@@ -128,7 +128,7 @@ for year in range(star_date.year, end_date.year + 1):
     ax.vlines(last_day_of_year, ymin=0, ymax=ax.get_ylim()[1], colors='gray', linestyles='dashed', linewidth=1)
 
 # Añadir líneas horizontales punteadas cada 1000 unidades en el eje y
-for y in range(0, int(ax.get_ylim()[1]), 1000):
+for y in range(0, int(ax.get_ylim()[1]), 100):
     ax.hlines(y, xmin=star_date, xmax=end_date, colors='gray', linestyles='dashed', linewidth=1)
 
 
