@@ -25,7 +25,7 @@ from django.db.models import Avg, Max, Min, StdDev, Count,\
 django.setup()
 from app.models import *
 
-star_date = datetime(2022, 1, 1)
+star_date = datetime(2023, 1, 1)
 end_date = datetime(2024, 1, 30)
 
 result = Closed_position_sim.objects.values(

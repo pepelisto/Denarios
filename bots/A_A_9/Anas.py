@@ -11,8 +11,15 @@ def run_scheduled_pattern():
         remaining_time = max(0, remaining_time)
         print(f"Waiting for {remaining_time / 60} minutes until {next_start_time}")
         time.sleep(remaining_time)
-        Anastasia(timeframe=240).traeder()
-        time.sleep(60)
+        while True:
+            try:
+                Anastasia(timeframe=240).traeder()
+                time.sleep(60)
+                break
+            except Exception as e:
+                print(f"Error: {e}")
+                print("Retrying in 60 seconds...")
+                time.sleep(60)
 
 
 run_scheduled_pattern()

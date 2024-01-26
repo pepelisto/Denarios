@@ -27,9 +27,9 @@ from django.db.models.functions import TruncDate
 django.setup()
 
 from app.models import *
-star_date = datetime(2020, 1, 1)
-end_date = datetime(2023, 12, 30)
-sim = 441560339
+star_date = datetime(2022, 1, 1)
+end_date = datetime(2024, 1, 30)
+sim = 441530339
 
 result = Closed_position_sim.objects.values(
     # 'close_date',  # Truncar la fecha a días

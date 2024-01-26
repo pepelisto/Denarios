@@ -5,6 +5,7 @@ import numpy as np
 from django.conf import settings
 import django
 from Denarios.settings import DATABASES, INSTALLED_APPS
+from datetime import timedelta
 
 # settings.configure(DATABASES=DATABASES, INSTALLED_APPS=INSTALLED_APPS)
 django.setup()
@@ -75,8 +76,8 @@ def close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, fact
         sl_limit=sl_limit,
         sl_low_limit=sl_low_limit,
         ratr=factor_ajuste,
-        simulation=441560339,
-        sim_info='histograma creciente , con sl limit pequeño',
+        simulation=441530339,
+        sim_info='histograma creciente',
     )
     Open_position_sim.objects.get(symbol_id=s.pk).delete()
     op = Oportunities_sim.objects.get(symbol_id=s.pk)
@@ -97,7 +98,10 @@ def anastasia(s, symbol, df, df5, idx, sl_tp_ratio, sl_limit, sl_low_limit, fact
     except:
         return
     close_date_ = df.loc[idx, 'timestamp']
-    matching_row = df5[df5['timestamp'] == close_date_].index[0]
+    try:
+        matching_row = df5[df5['timestamp'] == close_date_].index[0]
+    except:
+        return
     for i in range(matching_row, matching_row - 48, -1):
         row_data = df5.iloc[i]
         type_ = po.type
@@ -294,7 +298,6 @@ def agripina(s, symbol, df,  stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_t
 def simulator():
     path = "samples/USDT4/2023_4h/"
     path5 = "samples/USDT4/2023_5m/"
-    # path24 = "samples/USDT3/2023_1d/"
     symbols = Symbol.objects.filter(find_in_api=True)
     for s in symbols:
         print("simulando " + str(s.symbol))
@@ -304,12 +307,10 @@ def simulator():
         num_rows = min(len(df), 8405)
         csv_file_path5 = f"{path5}{symbol}_simulation.csv"
         df5 = pd.read_csv(csv_file_path5)
-        # csv_file_path24 = f"{path24}{symbol}_simulation.csv"
-        # df24 = pd.read_csv(csv_file_path24)
         for v1 in [0]:#quedo fijado en 80 y 20, pq la variacion no mostro impacto signifiactivo
             stoch_buy = round(0.2 - v1, 2)
             stoch_sell = round(0.8 + v1, 2)
-            for v2 in [6]:
+            for v2 in [3]:
                 rsi_buy = 50 + v2
                 rsi_sell = 50 - v2
                 for v3 in [3]:

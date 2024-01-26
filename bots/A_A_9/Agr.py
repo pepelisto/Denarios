@@ -29,8 +29,15 @@ def run_scheduled_pattern():
         remaining_time = (next_start_time_utc - current_time_utc).total_seconds()
         print(f"Waiting for {remaining_time / 60} minutes until {next_start_time_utc}")
         time.sleep(remaining_time)
-        Agripina(timeframe=240).traeder()
-        print("Executing your task.")
+        while True:
+            try:
+                Agripina(timeframe=240).traeder()
+                print("Executing your task.")
+                break
+            except Exception as e:
+                print(f"Error: {e}")
+                print("Retrying in 60 seconds...")
+                time.sleep(60)
 
 run_scheduled_pattern()
 
