@@ -76,8 +76,8 @@ def close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, fact
         sl_limit=sl_limit,
         sl_low_limit=sl_low_limit,
         ratr=factor_ajuste,
-        simulation=441500339,
-        sim_info='histograma creciente',
+        simulation=441560669,
+        sim_info='histograma creciente, ajuste mayor',
     )
     Open_position_sim.objects.get(symbol_id=s.pk).delete()
     op = Oportunities_sim.objects.get(symbol_id=s.pk)
@@ -319,7 +319,7 @@ def simulator():
                         sl_low_limit = v5
                         for v4 in [0.1]:
                             sl_limit = v4
-                            for v5 in [0.0075]:
+                            for v5 in [0.03]:
                                 factor_ajuste = v5
                                 print(str(v3) + '  ' + str(v4))
                                 for idx in range(num_rows - 150, -1, -1):

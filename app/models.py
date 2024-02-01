@@ -2,7 +2,7 @@ from django.db import models
 
 
 class Symbol(models.Model):
-    symbol = models.CharField(max_length=12, unique=True)
+    symbol = models.CharField(max_length=15, unique=True)
     find_in_api = models.BooleanField(default=False)
     def __str__(self):
         return self.symbol + ' - ' + str(self.find_in_api) + ' - ' + str(self.id)
@@ -18,7 +18,7 @@ class Oportunities(models.Model):
     class Meta:
         unique_together = ['symbol', 'timeframe']
     def __str__(self):
-        return str(self.symbol) + ' - ' + self.type + ' - ' + str(self.stock_rsi) + ' - ' + str(self.macd) + ' - ' + str(self.rsi) + ' - ' + str(self.timeframe)
+        return str(self.symbol) + ' - ' + self.type + ' -Stoch ' + str(self.stock_rsi) + ' -MACD ' + str(self.macd) + ' -RSI ' + str(self.rsi) + ' - ' + str(self.timeframe)
 
 
 class Open_position(models.Model):

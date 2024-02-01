@@ -29,13 +29,19 @@ django.setup()
 from app.models import *
 star_date = datetime(2023, 1, 1)
 end_date = datetime(2024, 1, 30)
-sim = 441500339
+sim = 446000999
+sl = 0.2
+rsi = 5
 
 result = Closed_position_sim.objects.values(
     # 'close_date',  # Truncar la fecha a días
+    'sl_limit',
+    'rsi_open',
     'simulation',
 ).filter(close_date__range=(star_date, end_date),
          simulation=sim,
+         rsi_open=rsi,
+         sl_limit=sl,
 ).annotate(
     positions=Count('id'),
     pnl_total=Round(Sum('profit'), 2),
@@ -83,7 +89,7 @@ for entry in result:
     print(entry)
 
 # Get unique simulation numbers
-simulations = Closed_position_sim.objects.filter(simulation=sim).filter(close_date__range=(star_date, end_date)).values_list('simulation', flat=True).distinct()
+simulations = Closed_position_sim.objects.filter(simulation=sim, rsi_open=rsi, sl_limit=sl).filter(close_date__range=(star_date, end_date)).values_list('simulation', flat=True).distinct()
 
 # Create a plot for each simulation number
 fig, ax = plt.subplots(figsize=(16, 9))
@@ -92,8 +98,12 @@ for simulation in simulations:
     result = Closed_position_sim.objects.values(
         'close_date',
         'simulation',
+        'sl_limit',
+        'rsi_open',
     ).filter(close_date__range=(star_date, end_date),
              simulation=simulation,
+             rsi_open=rsi,
+             sl_limit=sl,
     ).annotate(
         pnl_total=Round(Sum('profit'), 2),
     )

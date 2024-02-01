@@ -5,7 +5,7 @@ import django
 import pandas as pd
 from Denarios.settings import DATABASES, INSTALLED_APPS
 
-settings.configure(DATABASES=DATABASES, INSTALLED_APPS=INSTALLED_APPS)
+# settings.configure(DATABASES=DATABASES, INSTALLED_APPS=INSTALLED_APPS)
 django.setup()
 from app.models import *
 
@@ -15,7 +15,7 @@ candles = 1100
 limit = 400 + candles
 periodos = 3
 
-symbols_queryset = Symbol.objects.filter(find_in_api=True)
+symbols_queryset = Symbol.objects.filter(find_in_api=True).filter(id__gt=38)
 symbols = [symbol.symbol for symbol in symbols_queryset]
 
 # symbols = ['BTCUSDT']
