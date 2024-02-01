@@ -25,10 +25,13 @@ def run_scheduled_pattern():
                     i += 1
                     print(f"Error: {e}")
                     if i == 10:
-                        error_message = f"Error on Anastasia: {e}"
+                        error_message = f"Error on Anastasia: {e}, se intento 10 veces reconectar pero error persiste"
                         send_email("Anastasia Error", error_message)
                         print(f"Error: {e}")
                         raise
+                    elif i == 1:
+                        error_message = f"Error on Anastasia: {e} primer intento de reconeccion, si no llegan el email de 10 falla es pq funciono"
+                        send_email("Anastasia Error", error_message)
                 else:
                     error_message = f"Error on Anastasia: {e}"
                     send_email("Anastasia Error", error_message)
