@@ -29,9 +29,9 @@ django.setup()
 from app.models import *
 star_date = datetime(2023, 1, 1)
 end_date = datetime(2024, 1, 30)
-sim = 446000999
-sl = 0.2
-rsi = 5
+sim = 449330000
+sl = 0.1
+rsi = 6
 
 result = Closed_position_sim.objects.values(
     # 'close_date',  # Truncar la fecha a días

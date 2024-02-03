@@ -26,9 +26,9 @@ import math
 django.setup()
 
 from app.models import *
-star_date = datetime(2020, 1, 1)
-end_date = datetime(2023, 12, 30)
-simulation = 441560039
+star_date = datetime(2023, 1, 1)
+end_date = datetime(2024, 1, 30)
+simulation = 446560339
 
 result = Closed_position_sim.objects.values(
     # 'close_date',  # Truncar la fecha a días

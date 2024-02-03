@@ -30,12 +30,12 @@ end_date = datetime(2024, 1, 30)
 
 result = Closed_position_sim.objects.values(
            # 'symbol__symbol',
-         #  'type',#,
-      # 'tp_sl_ratio',
+           # 'type',#,
+       'tp_sl_ratio',
       'sl_limit' ,
-      # 'rsi_open',
+       'rsi_open',
       'simulation',
-    # 'ratr'
+       'ratr'
 
       # 'sim_info',
   ).filter(close_date__range=(star_date, end_date),

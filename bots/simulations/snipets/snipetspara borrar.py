@@ -9,5 +9,12 @@ django.setup()
 from app.models import *
 
 # Assuming you have imported the model Closed_position_sim
-# Closed_position_sim.objects.all().delete()
-Closed_position_sim.objects.filter(simulation=446000339).delete()
+# # Closed_position_sim.objects.all().delete()
+Closed_position_sim.objects.filter(simulation=449220000).delete()
+
+# symbols = Closed_position_sim.objects.values('symbol__symbol').filter(simulation=446560339).values_list('symbol__symbol', flat=True).distinct()
+# print(symbols)
+# sy_false = Symbol.objects.exclude(symbol__in=symbols)
+# for s in sy_false:
+#     s.find_in_api = False
+#     s.save()
