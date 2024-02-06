@@ -27,15 +27,21 @@ django.setup()
 
 from app.models import *
 star_date = datetime(2023, 1, 1)
-end_date = datetime(2024, 1, 30)
-simulation = 446560339
+end_date = datetime(2023, 12, 31)
+simulation = 450123456
+rsi = 4
+sl = 0.1
 
 result = Closed_position_sim.objects.values(
     # 'close_date',  # Truncar la fecha a días
     'simulation',
     'symbol__symbol',
+    'sl_limit',
+    'rsi_open',
 ).filter(close_date__range=(star_date, end_date),
         simulation=simulation,
+         rsi_open=rsi,
+         sl_limit=sl,
 ).annotate(
     positions=Count('id'),
     pnl_total=Round(Sum('profit'), 2),
@@ -83,7 +89,7 @@ for entry in result:
     print(entry)
 
 # Get unique simulation numbers
-symbols = Closed_position_sim.objects.filter(simulation=simulation).filter(close_date__range=(star_date, end_date)).values_list('symbol__symbol', flat=True).distinct()
+symbols = Closed_position_sim.objects.filter(simulation=simulation, rsi_open=rsi, sl_limit=sl).filter(close_date__range=(star_date, end_date)).values_list('symbol__symbol', flat=True).distinct()
 # Number of symbols per chart
 symbols_per_chart = 5
 
@@ -115,6 +121,8 @@ for i in range(num_charts):
         ).filter(close_date__range=(star_date, end_date),
                  symbol__symbol=sym,
                  simulation=simulation,
+                 rsi_open=rsi,
+                 sl_limit=sl,
         ).annotate(
             pnl_total=Round(Sum('profit'), 2),
         )

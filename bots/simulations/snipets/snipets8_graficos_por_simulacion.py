@@ -28,20 +28,23 @@ django.setup()
 
 from app.models import *
 star_date = datetime(2023, 1, 1)
-end_date = datetime(2024, 1, 30)
-sim = 449330000
+end_date = datetime(2023, 12, 31)
+sim = 450199963
 sl = 0.1
-rsi = 6
+rsi = 4
+stoch_open = 0.3
 
 result = Closed_position_sim.objects.values(
     # 'close_date',  # Truncar la fecha a días
     'sl_limit',
     'rsi_open',
     'simulation',
+    'stoch_open',
 ).filter(close_date__range=(star_date, end_date),
          simulation=sim,
          rsi_open=rsi,
          sl_limit=sl,
+         stoch_open=stoch_open,
 ).annotate(
     positions=Count('id'),
     pnl_total=Round(Sum('profit'), 2),
@@ -89,7 +92,7 @@ for entry in result:
     print(entry)
 
 # Get unique simulation numbers
-simulations = Closed_position_sim.objects.filter(simulation=sim, rsi_open=rsi, sl_limit=sl).filter(close_date__range=(star_date, end_date)).values_list('simulation', flat=True).distinct()
+simulations = Closed_position_sim.objects.filter(simulation=sim, rsi_open=rsi, sl_limit=sl, stoch_open=stoch_open).filter(close_date__range=(star_date, end_date)).values_list('simulation', flat=True).distinct()
 
 # Create a plot for each simulation number
 fig, ax = plt.subplots(figsize=(16, 9))
@@ -100,10 +103,12 @@ for simulation in simulations:
         'simulation',
         'sl_limit',
         'rsi_open',
+        'stoch_open',
     ).filter(close_date__range=(star_date, end_date),
              simulation=simulation,
              rsi_open=rsi,
              sl_limit=sl,
+             stoch_open=stoch_open,
     ).annotate(
         pnl_total=Round(Sum('profit'), 2),
     )

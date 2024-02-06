@@ -296,7 +296,7 @@ def agripina(s, symbol, df,  stoch_buy, stoch_sell, rsi_buy, rsi_sell, idx, sl_t
         update_opportunities(op, type='OPEN')
 
 def simulator():
-    path = "samples/USDT4/2023_4h/"
+    path = "../samples/USDT4/2023_4h/"
     path5 = "samples/USDT4/2023_5m/"
     symbols = Symbol.objects.filter(find_in_api=True)
     for s in symbols:

@@ -6,12 +6,11 @@ from django.db import connections
 from psycopg2 import OperationalError
 
 def reconnect_database():
-    # Get the 'default' database connection
     default_db = connections['default']
-    # Close the connection if it's not closed already
-    if not default_db.is_closed:
-        default_db.close()
-    # Reconnect to the 'default' database
+    try:
+       default_db.close()
+    except Exception as e:
+        print(f"Exception while closing the database connection: {e}")
     default_db.connect()
 
 def run_scheduled_pattern():
