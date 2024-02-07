@@ -32,7 +32,7 @@ def run_scheduled_pattern():
             except Exception as e:
                 # Send email notification
                 if 'SSL SYSCALL error: EOF detected' in str(e):
-                    time.sleep(20)
+                    time.sleep(5)
                     retries += 1
                     print(f"Error: {e}")
                     if retries == max_retries:
@@ -43,7 +43,6 @@ def run_scheduled_pattern():
                     elif retries == 1:
                         error_message = f"Error on Anastasia: {e} primer intento de reconeccion, si no llegan el email de 10 falla es pq funciono"
                         send_email("Anastasia Error", error_message)
-                    # Attempt to reconnect to the database
                     try:
                         reconnect_database()
                         error_message = f"funciono la reconeccion Anastasia: 2256"
