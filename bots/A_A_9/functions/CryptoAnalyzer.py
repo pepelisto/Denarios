@@ -48,11 +48,11 @@ class CryptoAnalyzer:
         df['rsi'] = rsi.rsi()
 
         # Add a new column 'max_high_20' with the maximum value of 'high' over the last 20 rows
-        df['max_high_20'] = df['High'].rolling(window=20, min_periods=1).max()
-        df['min_low_20'] = df['Low'].rolling(window=20, min_periods=1).min()
+        df['max_high_20'] = df['high'].rolling(window=20, min_periods=1).max()
+        df['min_low_20'] = df['low'].rolling(window=20, min_periods=1).min()
 
-        df['max_high_10'] = df['High'].rolling(window=10, min_periods=1).max()
-        df['min_low_10'] = df['Low'].rolling(window=10, min_periods=1).min()
+        df['max_high_10'] = df['high'].rolling(window=10, min_periods=1).max()
+        df['min_low_10'] = df['low'].rolling(window=10, min_periods=1).min()
 
         return df
 
