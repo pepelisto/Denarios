@@ -47,9 +47,12 @@ class CryptoAnalyzer:
         rsi = ta.momentum.RSIIndicator(df['close'], window=56)
         df['rsi'] = rsi.rsi()
 
-        # Calculate RSI
-        rsi_fast = ta.momentum.RSIIndicator(df['close'])
-        df['rsi_fast'] = rsi_fast.rsi()
+        # Add a new column 'max_high_20' with the maximum value of 'high' over the last 20 rows
+        df['max_high_20'] = df['High'].rolling(window=20, min_periods=1).max()
+        df['min_low_20'] = df['Low'].rolling(window=20, min_periods=1).min()
+
+        df['max_high_10'] = df['High'].rolling(window=10, min_periods=1).max()
+        df['min_low_10'] = df['Low'].rolling(window=10, min_periods=1).min()
 
         return df
 

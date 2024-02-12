@@ -41,7 +41,7 @@ class Agripina:
 
     @transaction.atomic
     def create_position(self, symbol_, type_, entry_price_, quantity_, open_date_, stoch_, rsi_, sl_price, take_profit,
-                        leverage, stopPrice_precision, sl_order_id, tp_order_id, position_id):
+                        leverage, stopPrice_precision, sl_order_id, tp_order_id, position_id, factor_ajuste):
         Open_position.objects.create(
             symbol_id=symbol_.pk,
             type=type_,
@@ -60,6 +60,7 @@ class Agripina:
             tp_order_id=tp_order_id,
             id_position=position_id,
             alt_TP_SL=0,
+            factor_ajuste=factor_ajuste,
         )
 
     def open_position(self, symbol, side, stop_loss_factor, take_profit_factor, usdt_size):
@@ -171,7 +172,7 @@ class Agripina:
         return sl_price
 
 
-    def agripina(self, s, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, sl_tp_ratio, sl_limit, sl_low_limit):
+    def agripina(self, s, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, sl_tp_ratio, sl_limit):
         op = Oportunities.objects.get(symbol=s.symbol, timeframe=self.timeframe)
         if op.type == 'OPEN':
             return
@@ -180,7 +181,6 @@ class Agripina:
         srsik = df['stoch_osc_k'].iloc[1]
         srsid = df['stoch_osc_d'].iloc[1]
         rsi = df['rsi'].iloc[1]
-        rsi_fast = df['rsi_fast'].iloc[1]
         #---------------------check the stochastich rsi indicators ----------------------------------------
         if srsik >= stoch_sell and srsid >= stoch_sell:
             if op.type != 'SELL':
@@ -197,9 +197,9 @@ class Agripina:
                         self.retry_on_database_error(self.update_opportunities, op, macd=True)
                 elif op.macd and macdhistogram > macdhistogram_previo:
                         self.retry_on_database_error(self.update_opportunities, op, macd=False)
-                if not op.rsi and rsi <= rsi_sell and 50 >= rsi_fast:
+                if not op.rsi and rsi <= rsi_sell:
                         self.retry_on_database_error(self.update_opportunities, op, rsi=True)
-                elif op.rsi and (rsi >= rsi_sell or rsi_fast >= 50):
+                elif op.rsi and rsi >= rsi_sell:
                         self.retry_on_database_error(self.update_opportunities, op, rsi=False)
         # --------------------check the bullish indicators   ----------------------------------------
         if op.type == 'BUY':
@@ -210,48 +210,49 @@ class Agripina:
                         self.retry_on_database_error(self.update_opportunities, op, macd=True)
                 elif op.macd and macdhistogram < macdhistogram_previo:
                         self.retry_on_database_error(self.update_opportunities, op, macd=False)
-                if not op.rsi and rsi >= rsi_buy and 50 <= rsi_fast:
+                if not op.rsi and rsi >= rsi_buy:
                         self.retry_on_database_error(self.update_opportunities, op, rsi=True)
-                elif op.rsi and (rsi <= rsi_buy or rsi_fast <= 50):
+                elif op.rsi and rsi <= rsi_buy:
                         self.retry_on_database_error(self.update_opportunities, op, rsi=False)
+
         # --------------------open positions when conditions met ----------------------------------------
         if op.macd and op.rsi and op.stock_rsi:
             entry_price_ = df['close'].iloc[0]
-            # quantity_ = s.q elimina linea
             open_date_ = df['timestamp'].iloc[0]
             symbol_ = s.symbol
-            sl_price = self.calculate_stop_loss_factor(op, df)
-            sl_factor = (sl_price / entry_price_) - 1
+            s_high = df['max_high_20'].iloc[0]
+            s_low = df['min_low_20'].iloc[0]
             if op.type == 'BUY':
                 quantity_ = round(25 + (15 * (rsi - 50)), 0)
+                sl_price = s_low
+                sl_factor = (sl_price / entry_price_) - 1
                 stoch_ = stoch_buy
                 rsi_ = rsi_buy
                 type_ = 'BUY'
                 if abs(sl_factor) > sl_limit:
                     sl_price = entry_price_ * (1 - sl_limit)
-                elif abs(sl_factor) < sl_low_limit:
-                    self.retry_on_database_error(self.update_opportunities, op, type='NONE', stock_rsi=False, macd=False, rsi=False)
-                    return
+
             else:
                 quantity_ = round(25 + (15 * (50 - rsi)), 0)
+                sl_price = s_high
+                sl_factor = (sl_price / entry_price_) - 1
                 stoch_ = stoch_sell
                 rsi_ = rsi_sell
                 type_ = 'SELL'
                 if sl_factor > sl_limit:
                     sl_price = entry_price_ * (1 + sl_limit)
-                elif sl_factor < sl_low_limit:
-                    self.retry_on_database_error(self.update_opportunities, op, type='NONE', stock_rsi=False, macd=False, rsi=False)
-                    return
+
             #--------------aqui abrir posicion en binance-----------------------------
             sl_factor = (sl_price / entry_price_) - 1
             usdt_size = quantity_
             sym = s.symbol.symbol
             profit_factor = 1 + sl_factor * (-1.05) * sl_tp_ratio
             loss_factor = 1 + sl_factor * (1.05)
+            factor_ajuste = (abs((1 - entry_price_ / sl_price)) + 0.001) * 1.5
             entry_price, stop_loss, take_profit, leverage, stopPrice_precision, sl_order_id, tp_order_id, position_id \
                 = self.open_position(sym, type_, loss_factor, profit_factor, usdt_size)
             self.retry_on_database_error(self.create_position, symbol_, type_, entry_price, quantity_, open_date_, stoch_,
-                            rsi_, stop_loss, take_profit, leverage, stopPrice_precision, sl_order_id, tp_order_id, position_id)
+                 rsi_, stop_loss, take_profit, leverage, stopPrice_precision, sl_order_id, tp_order_id, position_id, factor_ajuste)
             self.retry_on_database_error(self.update_opportunities, op, type='OPEN')
 
 
@@ -279,5 +280,4 @@ class Agripina:
             rsi_sell = 50 - s.open_rsi
             sl_tp_ratio = s.tp_sl_ratio
             sl_limit = s.sl_limit
-            sl_low_limit = s.sl_low_limit
-            self.agripina(s, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, sl_tp_ratio, sl_limit, sl_low_limit)
+            self.agripina(s, df, stoch_buy, stoch_sell, rsi_buy, rsi_sell, sl_tp_ratio, sl_limit)

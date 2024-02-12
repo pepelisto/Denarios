@@ -12,13 +12,12 @@ django.setup()
 from app.models import *
 
 result = Optimum_parameter.objects.all()
-suma = 0
+
 
 for entry in result:
-    # suma += entry.q
+
     print(entry)
-    Oportunities(
-        symbol=entry.symbol,
-        timeframe=240,
-    ).save()
-print(suma/19)
+    # Oportunities(
+    #     symbol=entry.symbol,
+    #     timeframe=240,
+    # ).save()

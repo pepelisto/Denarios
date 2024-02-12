@@ -9,24 +9,25 @@ from django.db.models import Avg, Count, Sum, Case, When, Q, F, Max
 django.setup()
 from app.models import *
 
-star_date = datetime(2020, 1, 1)
-end_date = datetime(2023, 12, 30)
+star_date = datetime(2023, 1, 1)
+end_date = datetime(2023, 12, 31)
 pnl = 0
 for i in range(0, 42):
     result = Closed_position_sim.objects.values(
           'symbol__symbol',# 'type',#, 'tp_sl_ratio', 'sl_limit' 'rsi_open', 'stoch_open',
           'simulation',
-          'tp_sl_ratio', 'sl_limit', 'sl_low_limit', 'ratr',
+          'tp_sl_ratio', 'sl_limit', 'sl_low_limit',
+          # 'ratr',
           'simulation',
     ).filter(close_date__range=(star_date, end_date)).filter(symbol_id=i).filter(
-        simulation__startswith=441560000).annotate(
+        simulation=450199963, rsi_open=6, sl_limit=0.1).annotate(
         positions=Count('id'),
         pnl_total=Sum('profit'),
         positive_pnl_count=Count(Case(When(profit__gt=0, then=1))),
         negative_pnl_count=Count(Case(When(profit__lt=0, then=1))),
         pnl_average=Avg('profit'),
         total_fee=Sum('fee'),
-    ).order_by('symbol', '-pnl_total')[0:1]
+    ).filter(pnl_total__gt=-25).order_by('symbol', '-pnl_total')[0:1]
     # ).filter(pnl_total__gt=0).order_by('symbol', '-pnl_total')[0:1]
     # Now the result will contain the statistics calculated for each combin
     for entry in result:
@@ -40,7 +41,6 @@ for i in range(0, 42):
         #     sl_low_limit=0.01,
         #     open_rsi=6,
         #     pnl=round(entry['pnl_total'], 2),
-        #     factor_ajuste=entry['ratr'],
         #     simulation=entry['simulation'],
         #     pnl_av=entry['pnl_average']
         # ).save()

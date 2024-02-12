@@ -32,7 +32,7 @@ result = Closed_position_sim.objects.values(
             # 'symbol__symbol',
             # 'type',#,
        # 'tp_sl_ratio',
-      # 'sl_limit' ,
+       # 'sl_limit' ,
         'rsi_open',
       'simulation',
         # 'stoch_open',

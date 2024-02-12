@@ -31,7 +31,7 @@ star_date = datetime(2023, 1, 1)
 end_date = datetime(2023, 12, 31)
 sim = 450199963
 sl = 0.1
-rsi = 4
+rsi = 6
 stoch_open = 0.3
 
 result = Closed_position_sim.objects.values(

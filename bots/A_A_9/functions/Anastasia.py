@@ -87,7 +87,7 @@ class Anastasia:
             quantity=quantity_,
             open_date=po.open_date,
             close_date=close_date_,
-            stoch_open=po.stoch,
+            stoch_open=round(abs(0.5 - po.stoch), 2),
             rsi_open=po.rsi,
             close_method=close_method,
             tp_price=po.tp_price,
@@ -151,18 +151,19 @@ class Anastasia:
         return price, order
 
 
-    def anastasia(self, s, df, sl_tp_ratio, sl_limit, sl_low_limit, factor_ajuste):
+    def anastasia(self, s, df, sl_tp_ratio, sl_limit, sl_low_limit):
         try:
             po = Open_position.objects.get(symbol_id=s.symbol.pk, timeframe=self.timeframe)
         except:
             return
         type_ = po.type
         close = df['close'].iloc[0]
-        high = df['high'].iloc[1]
-        low = df['low'].iloc[1]
-        close_date_ = df['timestamp'].iloc[1]
+        high = df['high'].iloc[0]
+        low = df['low'].iloc[0]
+        close_date_ = df['timestamp'].iloc[0]
         tp_p = po.tp_price
         sl_p = po.sl_price
+        factor_ajuste = po.factor_ajuste
         alteraciones = po.alt_TP_SL
         precision = po.stopPrice_precision
         tp_period = False
@@ -255,5 +256,4 @@ class Anastasia:
             sl_tp_ratio = s.tp_sl_ratio
             sl_limit = s.sl_limit
             sl_low_limit = s.sl_low_limit
-            factor_ajuste = s.factor_ajuste
-            self.anastasia(s, df, sl_tp_ratio, sl_limit, sl_low_limit, factor_ajuste)
+            self.anastasia(s, df, sl_tp_ratio, sl_limit, sl_low_limit)

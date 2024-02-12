@@ -59,13 +59,9 @@ def run_scheduled_pattern():
                         send_email("Anastasia Error", error_message)
                         print(f"Error: {e}")
                         raise
-                    elif retries == 1:
-                        error_message = f"Error on Agripina: {e} primer intento de reconeccion, si no llegan el email de 10 falla es pq funciono"
-                        send_email("Anastasia Error", error_message)
                     try:
                         reconnect_database()
-                        error_message = f"funciono la reconeccion Agripina: 2256"
-                        send_email("Agripina funciona la wea", error_message)
+
                     except OperationalError as op_err:
                         print(f"Database reconnection failed Agripina: {op_err}")
                         error_message = f"Error on Agripina: {e}, error en intento de reconeccion de database"
