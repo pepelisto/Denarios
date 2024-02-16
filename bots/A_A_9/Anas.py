@@ -31,12 +31,17 @@ def run_scheduled_pattern():
                 break
             except Exception as e:
                 # Send email notification
-                if 'SSL SYSCALL error: EOF detected' in str(e):
+                if ('SSL SYSCALL error: EOF detected' or 'connection already closed') in str(e):
                     time.sleep(5)
                     retries += 1
                     print(f"Error: {e}")
                     if retries == max_retries:
                         error_message = f"Error on Anastasia: {e}, se intento 10 veces reconectar pero error persiste"
+                        send_email("Anastasia Error", error_message)
+                        print(f"Error: {e}")
+                        raise
+                    elif retries == 1:
+                        error_message = f"Error on Anastasia: {e}, falla, se intentara la primera reconeccion "
                         send_email("Anastasia Error", error_message)
                         print(f"Error: {e}")
                         raise
@@ -48,7 +53,7 @@ def run_scheduled_pattern():
                         send_email("Anastasia Error", error_message)
                         raise
                 else:
-                    error_message = f"Error on Anastasia: {e}"
+                    error_message = f"Error on Anastasia (563) process killed: {e}"
                     send_email("Anastasia Error", error_message)
                     print(f"Error: {e}")
                     raise
