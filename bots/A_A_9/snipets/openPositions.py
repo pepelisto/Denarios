@@ -15,6 +15,6 @@ op = Open_position.objects.filter()
 
 for o in op:
     print(o)
-    # o.delete()
+
 
 

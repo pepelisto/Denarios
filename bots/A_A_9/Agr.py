@@ -51,7 +51,7 @@ def run_scheduled_pattern():
             except Exception as e:
                 # Send email notification
                 if 'SSL SYSCALL error: EOF detected' in str(e):
-                    time.sleep(5)
+                    time.sleep(60)
                     retries += 1
                     print(f"Error: {e}")
                     if retries == max_retries:
@@ -59,17 +59,20 @@ def run_scheduled_pattern():
                         send_email("Anastasia Error", error_message)
                         print(f"Error: {e}")
                         raise
+                    # elif retries == 1:
+                    #     error_message = f"Error on Anastasia: {e}, falla, se intentara la primera reconeccion "
+                    #     send_email("Anastasia Error", error_message)
+                    #     print(f"Error: {e}")
                     try:
                         reconnect_database()
-
                     except OperationalError as op_err:
                         print(f"Database reconnection failed Agripina: {op_err}")
                         error_message = f"Error on Agripina: {e}, error en intento de reconeccion de database"
                         send_email("Agripina Error", error_message)
                         raise
                 else:
-                    error_message = f"Error on Agripina: {e}"
-                    send_email("Agripina Error", error_message)
+                    error_message = f"Error on Agripina (563) process killed:: {e}"
+                    send_email("Agripina Error no identificado", error_message)
                     print(f"Error: {e}")
                     raise
 

@@ -45,7 +45,9 @@ class Open_position(models.Model):
     factor_ajuste = models.FloatField(null=True, default=None)
     def __str__(self):
         return str(self.symbol) + ' - ' + self.type + ' - ' + str(self.alt_TP_SL) + ' - ' + str(self.timeframe) \
-            + ' -tp price ' + str(self.tp_price) + ' -sl price ' + str(self.sl_price) + ' -sl price ' + str(self.alt_TP_SL)
+            + ' -tp price ' + str(self.tp_price) + ' -sl price ' + str(self.sl_price) + ' -ALT ' + str(self.alt_TP_SL) \
+            +' -FA ' + str(round(self.factor_ajuste,3))
+
 
 
 class Closed_position(models.Model):
@@ -164,7 +166,7 @@ class Optimum_parameter(models.Model):
     class Meta:
         unique_together = ['symbol', 'type', 'criteria', 'timeframe']
     def __str__(self):
-        return str(self.symbol) + ' - ' + str(self.timeframe) + ' - ' + str(self.q)
+        return str(self.symbol) + ' - ' + str(self.timeframe) + ' - ' + str(self.q) + ' - ratio tp sl ' + str(self.tp_sl_ratio)
 
 
 class Simulations(models.Model):
