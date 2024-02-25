@@ -31,7 +31,8 @@ def run_scheduled_pattern():
                 break
             except Exception as e:
                 # Send email notification
-                if ('SSL SYSCALL error: EOF detected' or 'connection already closed') in str(e):
+                if ('SSL SYSCALL error: EOF detected' or 'connection already closed'
+                   or 'server closed the connection unexpectedly') in str(e):
                     time.sleep(20)
                     retries += 1
                     print(f"Error: {e}")
