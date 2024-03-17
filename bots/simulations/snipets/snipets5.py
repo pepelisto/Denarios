@@ -30,7 +30,7 @@ end_date = datetime(2023, 12, 31)
 
 result = Closed_position_sim.objects.values(
             # 'symbol__symbol',
-            'type',#,
+            # 'type',#,
        # 'tp_sl_ratio',
        # 'sl_limit' ,
         'rsi_open',
@@ -40,7 +40,7 @@ result = Closed_position_sim.objects.values(
          # 'sim_info',
   ).filter(close_date__range=(star_date, end_date),
            # symbol__symbol='BTCUSDT',
-           simulation=450199963,
+           # simulation=450199963,
           # sl_limit=0.1,# sl_low_limit=0.01,# ratr=0.05,# type='SELL',
            rsi_open=6,
           )\
