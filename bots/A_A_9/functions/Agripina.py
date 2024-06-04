@@ -79,6 +79,8 @@ class Agripina:
                 if 'msg' in trade_market and "Order's notional must be no smaller than" in trade_market['msg']:
                     # Handle the specific error related to notional value
                     usdt_size += 30  # Increase quantity by 30 for the next attempt
+                # elif 'msg' in trade_market and "Invalid symbol status for opening position." in trade_market['msg']:
+
                 else:
                     set = True
 
@@ -223,7 +225,8 @@ class Agripina:
             s_high = df['max_high_20'].iloc[0]
             s_low = df['min_low_20'].iloc[0]
             if op.type == 'BUY':
-                quantity_ = round(25 + (15 * (rsi - 50)), 0)
+                # quantity_ = round(25 + (15 * (rsi - 50)), 0)
+                quantity_ = 100
                 sl_price = s_low
                 sl_factor = (sl_price / entry_price_) - 1
                 stoch_ = stoch_buy
@@ -233,7 +236,8 @@ class Agripina:
                     sl_price = entry_price_ * (1 - sl_limit)
 
             else:
-                quantity_ = round(25 + (15 * (50 - rsi)), 0)
+                # quantity_ = round(25 + (15 * (50 - rsi)), 0)
+                quantity_ = 100
                 sl_price = s_high
                 sl_factor = (sl_price / entry_price_) - 1
                 stoch_ = stoch_sell

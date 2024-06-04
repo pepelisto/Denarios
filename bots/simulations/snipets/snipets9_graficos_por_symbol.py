@@ -28,7 +28,7 @@ django.setup()
 from app.models import *
 star_date = datetime(2023, 1, 1)
 end_date = datetime(2023, 12, 31)
-simulation = 450199963
+simulation = 450000000
 rsi = 6
 sl = 0.1
 

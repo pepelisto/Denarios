@@ -15,7 +15,7 @@ from django.db.models.functions import Round
 
 from Denarios.settings import DATABASES, INSTALLED_APPS
 from django.db.models import Avg, Max, Min, StdDev, Count,\
-    ExpressionWrapper, F, Sum, IntegerField, FloatField, Case, When
+    ExpressionWrapper, F, Sum, IntegerField, FloatField, Case, When, StdDev
 
 # import os
 # os.environ.setdefault("DJANGO_SETTINGS_MODULE", "your_project.settings")
@@ -25,29 +25,36 @@ from django.db.models import Avg, Max, Min, StdDev, Count,\
 django.setup()
 from app.models import *
 
-star_date = datetime(2023, 1, 1)
-end_date = datetime(2023, 12, 31)
+star_date = datetime(2024, 1, 1)
+end_date = datetime(2024, 5, 31)
+# Calculamos la diferencia en meses
+months = (end_date.year - star_date.year) * 12 + end_date.month - star_date.month
+
 
 result = Closed_position_sim.objects.values(
             # 'symbol__symbol',
             # 'type',#,
-       # 'tp_sl_ratio',
-       # 'sl_limit' ,
+        'tp_sl_ratio',
+        # 'sl_limit' ,
         'rsi_open',
-      'simulation',
+        'simulation',
         # 'stoch_open',
 
-         # 'sim_info',
+          # 'sim_info',
   ).filter(close_date__range=(star_date, end_date),
            # symbol__symbol='BTCUSDT',
-           # simulation=450199963,
-          # sl_limit=0.1,# sl_low_limit=0.01,# ratr=0.05,# type='SELL',
-           rsi_open=6,
-          )\
-    .exclude(simulation=450527222)\
+           # simulation=5151,
+           # sl_limit=0.1,# sl_low_limit=0.01,# ratr=0.05,# type='SELL',
+           #  rsi_open=6,
+           # tp_sl_ratio=2,
+          ).exclude(simulation=450527222)\
     .annotate(
     positions=Count('id'),
     pnl_total=Round(Sum('profit'), 2),
+    stddev_pnl=Round(StdDev('profit'), 2),
+    sharpe_ratio=ExpressionWrapper(
+        Round((((Sum('profit')/months)*12)/Avg('quantity')) / StdDev('profit'), 2),
+        output_field=FloatField()),
     max_pnl=Max('profit'),
     min_pnl=Min('profit'),
     pos_pnl_=Count(Case(When(profit__gt=0, then=1))),

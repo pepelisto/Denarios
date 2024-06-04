@@ -23,28 +23,34 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from datetime import datetime
 from django.db.models.functions import TruncDate
+from matplotlib.backends.backend_agg import FigureCanvasAgg
+
 
 django.setup()
 
 from app.models import *
-star_date = datetime(2023, 1, 1)
-end_date = datetime(2024, 1, 31)
-sim = 450199963
+star_date = datetime(2024, 1, 1)
+end_date = datetime(2024, 5, 31)
+sim = 5151
 sl = 0.1
 rsi = 6
 stoch_open = 0.3
+tp_sl_r = 2
 
 result = Closed_position_sim.objects.values(
     # 'close_date',  # Truncar la fecha a días
+
     'sl_limit',
     'rsi_open',
     'simulation',
     'stoch_open',
+    'tp_sl_ratio'
 ).filter(close_date__range=(star_date, end_date),
          simulation=sim,
          rsi_open=rsi,
          sl_limit=sl,
          stoch_open=stoch_open,
+         tp_sl_ratio=tp_sl_r,
 ).annotate(
     positions=Count('id'),
     pnl_total=Round(Sum('profit'), 2),
@@ -92,7 +98,7 @@ for entry in result:
     print(entry)
 
 # Get unique simulation numbers
-simulations = Closed_position_sim.objects.filter(simulation=sim, rsi_open=rsi, sl_limit=sl, stoch_open=stoch_open).filter(close_date__range=(star_date, end_date)).values_list('simulation', flat=True).distinct()
+simulations = Closed_position_sim.objects.filter(simulation=sim, rsi_open=rsi, sl_limit=sl, stoch_open=stoch_open, tp_sl_ratio=tp_sl_r).filter(close_date__range=(star_date, end_date)).values_list('simulation', flat=True).distinct()
 
 # Create a plot for each simulation number
 fig, ax = plt.subplots(figsize=(16, 9))
@@ -104,11 +110,13 @@ for simulation in simulations:
         'sl_limit',
         'rsi_open',
         'stoch_open',
+        'tp_sl_ratio',
     ).filter(close_date__range=(star_date, end_date),
              simulation=simulation,
              rsi_open=rsi,
              sl_limit=sl,
              stoch_open=stoch_open,
+             tp_sl_ratio=tp_sl_r,
     ).annotate(
         pnl_total=Round(Sum('profit'), 2),
     )
@@ -126,7 +134,7 @@ for simulation in simulations:
     df_result[f'Retorno acumulado - Sim {simulation}'] = df_result[f'Retorno acumulado - Sim {simulation}'].cumsum()
 
     # Plot the line for the current simulation
-    ax.plot(df_result['Fecha'], df_result[f'Retorno acumulado - Sim {simulation}'], label=f'Sim {simulation}', linewidth=3)
+    ax.plot(df_result['Fecha'], df_result[f'Retorno acumulado - Sim {simulation}'], label=f'Sim {simulation}', linewidth=2)
 
 
 # Configurar los ticks y etiquetas del eje x
@@ -138,7 +146,7 @@ ax.xaxis.set_major_locator(months)
 ax.xaxis.set_major_formatter(months_fmt)
 
 # Añadir líneas verticales punteadas al final de cada año
-for year in range(star_date.year, end_date.year + 1):
+for year in range(star_date.year, end_date.year):
     last_day_of_year = datetime(year, 12, 31)
     ax.vlines(last_day_of_year, ymin=0, ymax=ax.get_ylim()[1], colors='gray', linestyles='dashed', linewidth=1)
 

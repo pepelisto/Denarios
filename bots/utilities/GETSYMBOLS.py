@@ -30,10 +30,16 @@ usd_trading_pairs = get_futures_trading_pairs(asset)
 print(len(usd_trading_pairs))
 print(usd_trading_pairs)
 
-for i in usd_trading_pairs:
-    symbol, created = Symbol.objects.get_or_create(symbol=i)
-    if created:
-        symbol.save()
+existing = Symbol.objects.filter(symbol__in=usd_trading_pairs, find_in_api=True)
+
+# for i in usd_trading_pairs:
+#     print(i)
+#     # symbol, created = Symbol.objects.get_or_create(symbol=i)
+#     # if created:
+#     #     symbol.save()
+
+for k in existing:
+    print(k)
 
 # -----------this creates one new oportunitie instance for each symbol
 # symbols = Symbol.objects.all()

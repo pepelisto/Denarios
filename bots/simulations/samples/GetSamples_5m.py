@@ -13,9 +13,9 @@ interval = '5m'
 m = 5
 candles = 1100
 limit = 400 + candles
-periodos = 145
+periodos = 33
 
-symbols_queryset = Symbol.objects.filter(find_in_api=True).filter(id__gt=38)
+symbols_queryset = Symbol.objects.filter(find_in_api=True)#.filter(id__gt=38)
 symbols = [symbol.symbol for symbol in symbols_queryset]
 
 # symbols = ['BTCBUSD']
@@ -35,5 +35,5 @@ for s in symbols:
 
     # Concatenate the list of data frames into one
     combined_data_frame = pd.concat(data_frames_list, ignore_index=True)
-    combined_data_frame.to_csv(f"USDT4/2023_5m/{s}_simulation.csv", index=False)
-    print("simbol pronto:  " + str(sy))
+    combined_data_frame.to_csv(f"USDT5/5m/{s}_simulation.csv", index=False)
+    # print("simbol pronto:  " + str(sy))

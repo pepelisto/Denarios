@@ -11,10 +11,12 @@ from django.db.models import Q
 django.setup()
 from app.models import *
 
-op = Closed_position.objects.filter()
+op = Closed_position.objects.filter(symbol__symbol="LINKUSDT")
+profit = 0
 
 for o in op:
     print(o)
+    profit += o.profit
     # o.delete()
-
+print(profit)
 
