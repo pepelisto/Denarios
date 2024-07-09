@@ -10,7 +10,7 @@ from app.models import *
 
 # Assuming you have imported the model Closed_position_sim
 # # Closed_position_sim.objects.all().delete()
-Closed_position_sim.objects.exclude(simulation=450000000).delete()
+Closed_position_sim.objects.filter(simulation=54).delete()
 
 # symbols = Closed_position_sim.objects.values('symbol__symbol').filter(simulation=446560339).values_list('symbol__symbol', flat=True).distinct()
 # print(symbols)

@@ -11,7 +11,7 @@ from django.db.models import Q
 django.setup()
 from app.models import *
 
-op = Closed_position.objects.filter(symbol__symbol="LINKUSDT")
+op = Closed_position.objects.all()
 profit = 0
 
 for o in op:

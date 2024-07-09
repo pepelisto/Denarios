@@ -80,19 +80,21 @@ WSGI_APPLICATION = 'Denarios.wsgi.application'
 
 
 DATABASES = {
-    'local': {
+    'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
-    },
-    'default': dj_database_url.config(
-        default=config('DATABASE_URL'),
-        conn_max_age=600,
-        ssl_require=True,
-    )
+     }
+        # ,
+    # 'default': dj_database_url.config(
+    #     default=config('DATABASE_URL'),
+    #     conn_max_age=600,
+
+    #     ssl_require=True,
+    # )
 }
 
-DATABASE_ROUTERS = ['Denarios.routers.YourRouter']
-
+# DATABASE_ROUTERS = ['Denarios.routers.YourRouter']
+#
 
 # Make sure 'app' is in the correct place
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "Denarios.settings")

@@ -6,6 +6,8 @@ from Denarios.settings import DATABASES, INSTALLED_APPS
 django.setup()
 from app.models import *
 
+
+
 # s = Oportunities.objects.get(symbol__symbol='CVXUSDT')
 # print(s)
 # s.delete()
@@ -15,7 +17,10 @@ from app.models import *
 # print(s)
 
 
-s = Optimum_parameter.objects.get(symbol__symbol='CVXUSDT')
+s = Optimum_parameter.objects.all().delete()
+# print(s)
+s.delete()
+
 # s.find_in_api = False
 # s.save()
 # s.delete()

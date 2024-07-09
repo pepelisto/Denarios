@@ -10,7 +10,7 @@ django.setup()
 from app.models import *
 
 # Load your dataset into a Pandas DataFrame (replace 'your_dataset.csv' with your actual file path)
-path = "../samples/USDT5/4h/"
+path = "../samples/USDT6/4h/"
 symbols = Symbol.objects.filter(find_in_api=True)#.filter(id__gt=38)
 for s in symbols:
     print("simulando " + str(s.symbol))
