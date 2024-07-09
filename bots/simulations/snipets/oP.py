@@ -15,10 +15,10 @@ result = Optimum_parameter.objects.all()
 
 
 for entry in result:
-    entry.tp_sl_ratio = 2
-    entry.save()
+    # entry.tp_sl_ratio = 2
+    # entry.save()
     print(entry)
-    # Oportunities(
-    #     symbol=entry.symbol,
-    #     timeframe=240,
-    # ).save()
+    Oportunities(
+        symbol=entry.symbol,
+        timeframe=240,
+    ).save()

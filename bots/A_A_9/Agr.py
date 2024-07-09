@@ -51,7 +51,7 @@ def run_scheduled_pattern():
             except Exception as e:
                 # Send email notification
                 if 'SSL SYSCALL error: EOF detected' in str(e):
-                    time.sleep(60)
+                    time.sleep(180)
                     retries += 1
                     print(f"Error: {e}")
                     if retries == max_retries:

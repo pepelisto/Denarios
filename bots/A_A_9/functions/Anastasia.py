@@ -157,18 +157,18 @@ class Anastasia:
         except:
             return
         type_ = po.type
-        # close = df['close'].iloc[0]
+        close = df['close'].iloc[0]
         high = df['high'].iloc[0]
         low = df['low'].iloc[0]
         close_date_ = df['timestamp'].iloc[0]
         tp_p = po.tp_price
         sl_p = po.sl_price
-        # factor_ajuste = po.factor_ajuste
-        # alteraciones = po.alt_TP_SL
-        # precision = po.stopPrice_precision
+        factor_ajuste = po.factor_ajuste
+        alteraciones = po.alt_TP_SL
+        precision = po.stopPrice_precision
         tp_period = False
         sl_period = False
-        # ajuste = False
+        ajuste = False
         if type_ == 'BUY':
             if high >= tp_p:
                 tp_period = True
@@ -189,11 +189,17 @@ class Anastasia:
                 else:
                     self.retry_on_database_error(self.close_position, s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='SL')
                     return
-            # aumento = (close - po.entry_price) / po.entry_price
-            # if aumento > (alteraciones + 1) * factor_ajuste:
-            #     ajuste = True
-            #     stop_loss = round(sl_p + po.entry_price * factor_ajuste, precision)
-            #     take_profit = round(tp_p + po.entry_price * factor_ajuste, precision)
+            aumento = (close - po.entry_price) / po.entry_price
+            if alteraciones == 0:
+                if aumento > factor_ajuste:
+                    ajuste = True
+                    stop_loss = round(sl_p + po.entry_price * (factor_ajuste / 2) * 3, precision)
+                    take_profit = round(tp_p + po.entry_price * (factor_ajuste / 2), precision)
+            else:
+                if aumento > factor_ajuste + (alteraciones + 1) * (factor_ajuste / 2):
+                    ajuste = True
+                    stop_loss = round(sl_p + po.entry_price * (factor_ajuste / 2), precision)
+                    take_profit = round(tp_p + po.entry_price * (factor_ajuste / 2), precision)
 
 
         else:
@@ -216,20 +222,26 @@ class Anastasia:
                 else:
                     self.retry_on_database_error(self.close_position, s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, close_method='SL')
                     return
-            # aumento = -((close - po.entry_price) / po.entry_price)
-            # if aumento > (alteraciones + 1) * factor_ajuste:
-            #     ajuste = True
-            #     stop_loss = round(sl_p - po.entry_price * factor_ajuste, precision)
-            #     take_profit = round(tp_p - po.entry_price * factor_ajuste, precision)
+            aumento = -((close - po.entry_price) / po.entry_price)
+            if alteraciones == 0:
+                if aumento > factor_ajuste:
+                    ajuste = True
+                    stop_loss = round(sl_p - po.entry_price * (factor_ajuste / 2) * 3, precision)
+                    take_profit = round(tp_p - po.entry_price * (factor_ajuste / 2), precision)
+            else:
+                if aumento > factor_ajuste + (alteraciones + 1) * (factor_ajuste / 2):
+                    ajuste = True
+                    stop_loss = round(sl_p - po.entry_price * (factor_ajuste / 2), precision)
+                    take_profit = round(tp_p - po.entry_price * (factor_ajuste / 2), precision)
 
-        # if ajuste:
-        #     sl_order_id = po.sl_order_id
-        #     tp_order_id = po.tp_order_id
-        #     side = po.type
-        #     symbol = s.symbol.symbol
-        #     new_sl, new_tp, new_sl_order_id, new_tp_order_id = self.adjust_sl(symbol, side, stop_loss, take_profit, precision, sl_order_id, tp_order_id)
-        #     atl = alteraciones + 1
-        #     self.retry_on_database_error(self.update_position, po, new_sl_order_id, new_tp_order_id, atl, new_sl, new_tp)
+        if ajuste:
+            sl_order_id = po.sl_order_id
+            tp_order_id = po.tp_order_id
+            side = po.type
+            symbol = s.symbol.symbol
+            new_sl, new_tp, new_sl_order_id, new_tp_order_id = self.adjust_sl(symbol, side, stop_loss, take_profit, precision, sl_order_id, tp_order_id)
+            atl = alteraciones + 1
+            self.retry_on_database_error(self.update_position, po, new_sl_order_id, new_tp_order_id, atl, new_sl, new_tp)
 
 
     def traeder(self):

@@ -26,7 +26,7 @@ django.setup()
 from app.models import *
 
 star_date = datetime(2024, 1, 1)
-end_date = datetime(2024, 5, 31)
+end_date = datetime(2024, 7, 31)
 # Calculamos la diferencia en meses
 months = (end_date.year - star_date.year) * 12 + end_date.month - star_date.month
 
