@@ -64,15 +64,26 @@ class Agripina:
         )
 
     def open_position(self, symbol, side, stop_loss_factor, take_profit_factor, usdt_size):
+        print(f"opening position for {symbol}")
 
         trader = BinanceTrader()
         leverage = 19
 
-        set_leverage = trader.set_leverage(symbol, leverage)
-        print(set_leverage)
+        lev = False
+        while not lev:
+            set_leverage = trader.set_leverage(symbol, leverage)
+            print(set_leverage)
+            if 'msg' in set_leverage and leverage > 6 and "is not valid" in set_leverage['msg']:
+                leverage -= 1
+            elif leverage < 7:
+                print("no permite leverage hasta 7")
+                raise
+            else:
+                lev = True
+
 
         try:
-            set=False
+            set = False
             while not set:
                 trade_market, stopPrice_precision = trader.place_order(symbol, side, usdt_size, leverage)
                 print(trade_market)
