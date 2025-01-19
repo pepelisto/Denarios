@@ -87,6 +87,9 @@ class Oportunities_sim(models.Model):
     stock_rsi = models.BooleanField(default=False)
     macd = models.BooleanField(default=False)
     rsi = models.BooleanField(default=False)
+    var_1 = models.FloatField(null=True, default=None, blank=True)
+    var_2 = models.FloatField(null=True, default=None, blank=True)
+    var_3 = models.FloatField(null=True, default=None, blank=True)
     def __str__(self):
         return str(self.symbol) + ' - ' + self.type + ' - ' + str(self.stock_rsi) + ' - ' + str(self.macd) + ' - ' + str(self.rsi)
 
@@ -98,12 +101,12 @@ class Open_position_sim(models.Model):
     entry_price = models.FloatField()
     quantity = models.FloatField()
     open_date = models.DateTimeField()
-    stoch = models.FloatField()
-    rsi = models.FloatField()
+    stoch = models.FloatField(null=True, default=None, blank=True)
+    rsi = models.FloatField(null=True, default=None, blank=True)
     tp_price = models.FloatField(null=True, default=None)
     sl_price = models.FloatField(null=True, default=None)
-    atr = models.FloatField(null=True, default=None)
-    ratr = models.FloatField(null=True, default=None)
+    atr = models.FloatField(null=True, default=None, blank=True)
+    ratr = models.FloatField(null=True, default=None, blank=True)
 
 
 class Closed_position_sim(models.Model):
@@ -118,8 +121,8 @@ class Closed_position_sim(models.Model):
     quantity = models.FloatField()
     open_date = models.DateTimeField()
     close_date = models.DateTimeField()
-    stoch_open = models.FloatField()
-    rsi_open = models.FloatField()
+    stoch_open = models.FloatField(null=True, default=None)
+    rsi_open = models.FloatField(null=True, default=None)
     tp_price = models.FloatField(null=True, default=None)
     sl_price = models.FloatField(null=True, default=None)
     close_method = models.CharField(null=True, default=None, max_length=10)
