@@ -3,6 +3,11 @@ venv
 bots/simulations/samples/USDT
 bots/simulations/samples/USDT2
 bots/simulations/samples/USDT3
+bots/simulations/samples/USDT4
+bots/simulations/samples/USDT5
+bots/simulations/samples/USDT6
+bots/simulations/SP500
+
 db.sqlite3
 #Denarios/bots/simulations
 #Denarios/routers.py
