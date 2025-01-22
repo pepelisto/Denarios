@@ -28,8 +28,8 @@ django.setup()
 from app.models import *
 star_date = datetime(2021, 1, 1)
 end_date = datetime(2024, 12, 31)
-simulation = 5
-rsi = 4
+simulation = 134
+rsi = 0
 # sl = 0.1
 
 result = Closed_position_sim.objects.values(

@@ -402,6 +402,7 @@ def simulator():
         i += 1
         symbol = s.symbol
         csv_file_path = f"{path}{symbol}_simulation_3.csv"
+        #$$
         sp500 = pd.read_csv(f"{pathSP500}sp500_indicators.csv", parse_dates=["Date"])
 
         # Filtrar solo las columnas relevantes
@@ -438,8 +439,13 @@ def simulator():
         # Reorganizar las columnas en el DataFrame
         df = df[columns]
 
+        # Ordenar el DataFrame de la fecha más reciente a la más antigua
+        df = df.iloc[::-1].reset_index(drop=True)
+        #*
         csv_file_path5 = f"{path5}{symbol}_simulation.csv"
         df5 = pd.read_csv(csv_file_path5)
+
+
 
         for v1 in [0]:#quedo fijado en 80 y 20, pq la variacion no mostro impacto signifiactivo
             stoch_buy = round(0.2 - v1, 2)
