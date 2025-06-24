@@ -33,7 +33,7 @@ It supports multi-timeframe analysis, backtesting with detailed metrics, and rea
 ---
 
 ## 🧱 Project Structure
-
+```
 Denarios/
 ├── app/                      # Django models for trades, simulations, strategies
 ├── templates/                # Web frontend for reviewing position history and stats
@@ -51,7 +51,7 @@ Denarios/
 ├── CryptoAnalyzer/           # Binance connection, trade functions, price feed
 ├── BotsForex/                # (WIP) Future forex bot replication
 └── settings/                 # Django configuration
-
+```
 
 ---
 
