@@ -47,6 +47,10 @@ def close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, fact
         delta = exit_price/po.entry_price - 1
     else:
         delta = -((exit_price / po.entry_price) - 1)
+    if po.stoch == None:
+        stoch = 0
+    if po.rsi == None:
+        rsi = 0
     quantity_ = round(po.quantity * (1 + delta), 2)
     fee_entry = round(po.quantity * 0.00045, 5)
     fee_exit = round(quantity_ * 0.00045, 5)
@@ -64,8 +68,8 @@ def close_position(s, po, close_date_, sl_tp_ratio, sl_limit, sl_low_limit, fact
         quantity=quantity_,
         open_date=po.open_date,
         close_date=close_date_,
-        stoch_open=round(abs(0.5 - po.stoch), 2),
-        rsi_open=abs(50 - po.rsi),
+        stoch_open=round(abs(0.5 - stoch), 2),
+        rsi_open=abs(50 - rsi),
         close_method=close_method,
         tp_price=po.tp_price,
         sl_price=po.sl_price,

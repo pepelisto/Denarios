@@ -31,7 +31,7 @@ django.setup()
 from app.models import *
 
 star_date = datetime(2022, 1, 1)
-end_date = datetime(2024, 12, 31)
+end_date = datetime(2025, 12, 31)
 # sim = 2
 # sl = 0.1
 # rsi = 6

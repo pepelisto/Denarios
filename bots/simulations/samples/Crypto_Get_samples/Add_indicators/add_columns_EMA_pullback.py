@@ -25,6 +25,14 @@ for s in symbols:
     # Reverse the order of the DataFrame
     df = df[::-1].reset_index(drop=True)
 
+    # Step 1: Calculate True Range (TR)
+    df['high-low'] = df['High'] - df['Low']
+    df['high-close_prev'] = abs(df['High'] - df['Close'].shift(1))
+    df['low-close_prev'] = abs(df['Low'] - df['Close'].shift(1))
+    df['true_range'] = df[['high-low', 'high-close_prev', 'low-close_prev']].max(axis=1)
+    # Step 2: Calculate Average True Range (ATR)
+    atr_period = 14  # You can adjust this period as needed
+    df['atr'] = df['true_range'].rolling(window=atr_period, min_periods=1).mean()
 
     # Calculate RSI
     rsi = ta.momentum.RSIIndicator(df['Close'])

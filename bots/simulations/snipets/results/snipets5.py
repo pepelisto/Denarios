@@ -26,14 +26,14 @@ django.setup()
 from app.models import *
 
 star_date = datetime(2020, 1, 1)
-end_date = datetime(2024, 12, 31)
+end_date = datetime(2025, 12, 31)
 # Calculamos la diferencia en meses
 months = (end_date.year - star_date.year) * 12 + end_date.month - star_date.month
 
 
 result = Closed_position_sim.objects.values(
             # 'symbol__symbol',
-            # 'type',#,
+            'type',#,
         'tp_sl_ratio',
         # 'sl_limit' ,
         'rsi_open',

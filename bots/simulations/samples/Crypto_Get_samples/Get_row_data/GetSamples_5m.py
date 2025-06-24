@@ -13,7 +13,7 @@ interval = '5m'
 m = 5
 candles = 1100
 limit = 400 + candles
-periodos = 2
+periodos = 240
 
 
 # list = ['LINKUSDT', 'LTCUSDT', 'MATICUSDT', 'SANDUSDT']
