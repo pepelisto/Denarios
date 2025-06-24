@@ -35,25 +35,23 @@ It supports multi-timeframe analysis, backtesting with detailed metrics, and rea
 ## 🧱 Project Structure
 
 Denarios/
-├── app/ # Django models for trades, simulations, strategies
-├── templates/ # Web frontend for reviewing position history and stats
+├── app/                      # Django models for trades, simulations, strategies
+├── templates/                # Web frontend for reviewing position history and stats
 ├── bots/
-│ ├── simulaciones/ # Core simulation/backtesting logic
-│ │ ├── A90/ # Most recent strategy logic
-│ │ ├── snippets/ # Metrics & visualizations (drawdown, Sharpe, etc.)
-│ ├── samples/
-│ │ ├── CryptoGetSamples/ # Data download from Binance
-│ │ ├── AddIndicators/ # Custom indicators for OHLCV data
-│ ├── AA/ and AA9/ # Real-time bots
-│ │ ├── Agripina.py # Strategy execution & trade entry
-│ │ ├── Anastasia.py # TP/SL management & trade closure
-│ ├── Funciones/ # Live loop, filters, time checks
-├── CryptoAnalyzer/ # Binance connection, trade functions, price feed
-├── BotsForex/ # (WIP) Future forex bot replication
-└── settings/ # Django configuration
+│   ├── simulaciones/         # Core simulation/backtesting logic
+│   │   ├── A90/              # Most recent strategy logic
+│   │   ├── snippets/         # Metrics & visualizations (drawdown, Sharpe, etc.)
+│   ├── samples/
+│   │   ├── CryptoGetSamples/ # Data download from Binance
+│   │   ├── AddIndicators/    # Custom indicators for OHLCV data
+│   ├── AA/ and AA9/          # Real-time bots
+│   │   ├── Agripina.py       # Strategy execution & trade entry
+│   │   ├── Anastasia.py      # TP/SL management & trade closure
+│   ├── Funciones/            # Live loop, filters, time checks
+├── CryptoAnalyzer/           # Binance connection, trade functions, price feed
+├── BotsForex/                # (WIP) Future forex bot replication
+└── settings/                 # Django configuration
 
-yaml
-Copiar
 
 ---
 
