@@ -10,8 +10,8 @@ from urllib.parse import urlencode, quote_plus
 class BinanceTrader:
     def __init__(self):
         self.base_url = 'https://fapi.binance.com'
-        self.api_key = 'dMMzhZlQSknlim7rDobSSTkKF62fI1vlK0SCE7bksvW9PsY0Si5OKXA4oBxyvF6x'
-        self.api_secret = 'M0nhMnp9K4YvPn3O6Cb7BM6HlisMQ6NRkCeZWh4z7uIDqnqDljpPY8D2i8CsveNJ'
+        self.api_key = 'apiKey'
+        self.api_secret = 'apisecret'
         self.recv_window = 60000 # Adjust the recvWindow value as needed
 
     def create_signature(self, query_string):
